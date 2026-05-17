@@ -3,3 +3,17 @@ navigation:
     logout: "Logout"
   sidebar:
     home: "Home"
+
+command:
+  user:
+    create:
+      email: "Email address: "
+      email_invalid: "Invalid email address"
+      email_exists: "Email '%email%' is already in use"
+      username: "Username: "
+      username_invalid: "Username must be at least 3 characters long"
+      password: "Password: "
+      password_invalid: "Password must be at least 8 characters long"
+      confirm_password: "Confirm password: "
+      password_mismatch: "Passwords do not match!"
+      success: "User '%username%' created successfully!"
