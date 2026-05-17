@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <title>{% block title %}Welcome!{% endblock %}</title>
+        {% block stylesheets %}{% endblock %}
+
+        {% block javascripts %}
+            {% block importmap %}{{ importmap('app') }}{% endblock %}
+        {% endblock %}
+    </head>
+    <body>
+        <nav class="fixed top-0 z-50 w-full bg-gray-800">
+            <div class="px-3 py-3 lg:px-5 lg:pl-3">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center justify-start rtl:justify-end">
+                        <a href="{{ path('app.home') }}" class="flex ms-2 md:me-24">
+                            <h1 class="self-center text-2xl font-semibold whitespace-nowrap text-white">FeedWatch</h1>
+                            <span class="self-center text-xs text-gray-400 ms-2">{{ composer_version }}</span>
+                        </a>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="flex items-center ms-3">
+                            <div>
+                                <button type="button" class="flex text-md bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-600" aria-expanded="false" data-dropdown-toggle="dropdown-user">
+                                    <span class="sr-only">Open user menu</span>
+                                    {{ ux_icon('flowbite:user-circle-outline', {class: 'w-7 h-7 text-white'}) }}
+                                </button>
+                            </div>
+                            <div class="hidden z-50 my-4 w-56 text-base list-none bg-white rounded divide-y divide-gray-100 shadow" id="dropdown-user">
+                                <div class="py-3 px-4">
+                                    <span class="block text-md font-semibold text-gray-900">#</span>
+                                    <span class="block text-md font-light text-gray-500 truncate">#</span>
+                                </div>
+                                <ul class="py-1 font-light text-gray-500" aria-labelledby="dropdown">
+                                    <li>
+                                        <a href="#" class="block py-2 px-4 text-md hover:bg-gray-100">{{ 'navigation.header.logout'|trans }}</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="p-4 md:ml-72 h-screen">
+            <div class="p-4 mt-14 space-y-8">
+                {% block body %}{% endblock %}
+            </div>
+        </div>
+    </body>
+</html>
