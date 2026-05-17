@@ -6,15 +6,18 @@ namespace App\Twig;
 
 use Composer\InstalledVersions;
 
+/**
+ * @SuppressWarnings("PHPMD.StaticAccess")
+ */
 class ComposerVersion
 {
-    public static function getVersion(): string
+    public function getVersion(): string
     {
         return InstalledVersions::getRootPackage()['pretty_version'];
     }
 
     public function __toString(): string
     {
-        return sprintf('v%s', self::getVersion());
+        return sprintf('v%s', $this->getVersion());
     }
 }
