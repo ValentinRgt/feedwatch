@@ -1,0 +1,10 @@
+twig:
+    file_name_pattern: '*.twig'
+    paths:
+        '%kernel.project_dir%/templates/layouts': layouts
+    globals:
+        composer_version: '@App\Twig\ComposerVersion'
+
+when@test:
+    twig:
+        strict_variables: true

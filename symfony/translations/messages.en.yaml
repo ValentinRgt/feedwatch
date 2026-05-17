@@ -1,0 +1,5 @@
+navigation:
+  header:
+    logout: "Logout"
+  sidebar:
+    home: "Home"
