@@ -49,4 +49,18 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             $this->getEntityManager()->flush();
         }
     }
+
+    /**
+     * @param User $user
+     * @param bool $flush
+     * @return void
+     * @SuppressWarnings("PHPMD.BooleanArgumentFlag")
+     */
+    public function remove(User $user, bool $flush = false): void
+    {
+        $this->getEntityManager()->remove($user);
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
 }

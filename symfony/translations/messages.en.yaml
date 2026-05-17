@@ -17,3 +17,17 @@ command:
       confirm_password: "Confirm password: "
       password_mismatch: "Passwords do not match!"
       success: "User '%username%' created successfully!"
+    update:
+      not_found: "No user found with email '%email%'"
+      username: "Username (leave blank to keep '%username%'): "
+      username_invalid: "Username must be at least 3 characters long"
+      password: "New password (leave blank to keep current): "
+      password_invalid: "Password must be at least 8 characters long"
+      confirm_password: "Confirm new password: "
+      password_mismatch: "Passwords do not match!"
+      success: "User '%username%' updated successfully!"
+    delete:
+      not_found: "No user found with email '%email%'"
+      confirm: "Are you sure you want to delete user '%username%' (%email%)?"
+      cancelled: "Deletion cancelled."
+      success: "User '%username%' deleted successfully!"

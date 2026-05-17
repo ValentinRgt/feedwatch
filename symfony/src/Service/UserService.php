@@ -28,6 +28,14 @@ readonly class UserService implements UserInterface
     /**
      * @inheritdoc
      */
+    public function findByEmail(string $email): ?User
+    {
+        return $this->userRepository->findOneByEmail($email);
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function createAdmin(string $email, string $username, string $password): void
     {
         $user = new User();
@@ -39,5 +47,28 @@ readonly class UserService implements UserInterface
         $user->setPassword($hashedPassword);
 
         $this->userRepository->save($user, true);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function updateAdmin(User $user, string $username, ?string $password): void
+    {
+        $user->setUsername($username);
+
+        if (null !== $password) {
+            $hashedPassword = $this->passwordHasher->hashPassword($user, $password);
+            $user->setPassword($hashedPassword);
+        }
+
+        $this->userRepository->save($user, true);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function deleteAdmin(User $user): void
+    {
+        $this->userRepository->remove($user, true);
     }
 }
