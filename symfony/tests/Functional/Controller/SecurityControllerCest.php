@@ -32,7 +32,7 @@ class SecurityControllerCest
         $I->amOnPage('/login');
 
         $I->seeResponseCodeIsSuccessful();
-        $I->seeInTitle('Log in');
+        $I->seeInTitle('FeedWatch :: Login');
         $I->seeElement('input[name="_username"]');
         $I->seeElement('input[name="_password"]');
         $I->seeElement('input[name="_csrf_token"]');

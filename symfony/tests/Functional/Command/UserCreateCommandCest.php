@@ -17,6 +17,11 @@ class UserCreateCommandCest
         ]);
     }
 
+    /**
+     * Test that the command successfully creates a new admin user when provided with valid input.
+     * @param FunctionalTester $I
+     * @return void
+     */
     public function itCreatesANewAdminUser(FunctionalTester $I): void
     {
         $output = $I->runSymfonyConsoleCommand(
@@ -33,6 +38,11 @@ class UserCreateCommandCest
         $I->assertContains('ROLE_ADMIN', $user->getRoles());
     }
 
+    /**
+    * Test that the command fails when the provided email is already associated with an existing user.
+    * @param FunctionalTester $I
+    * @return void
+    */
     public function itFailsWhenPasswordsDoNotMatch(FunctionalTester $I): void
     {
         $output = $I->runSymfonyConsoleCommand(
