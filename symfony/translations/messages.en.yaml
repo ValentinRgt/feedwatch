@@ -1,6 +1,6 @@
 navigation:
   header:
-    login: "Log in"
+    login: "Login"
     logout: "Logout"
   sidebar:
     home: "Home"
@@ -34,8 +34,12 @@ command:
       success: "User '%username%' deleted successfully!"
 
 pages:
+  index:
+    title: "FeedWatch :: Home"
+    all_feeds: "All feeds"
+    no_feeds: "No feeds added yet."
   login:
-    title: "Log in"
+    title: "FeedWatch :: Login"
     email: "Email address"
     password: "Password"
     submit: "Log in"
