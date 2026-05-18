@@ -1,5 +1,6 @@
 navigation:
   header:
+    login: "Log in"
     logout: "Logout"
   sidebar:
     home: "Home"
@@ -31,3 +32,10 @@ command:
       confirm: "Are you sure you want to delete user '%username%' (%email%)?"
       cancelled: "Deletion cancelled."
       success: "User '%username%' deleted successfully!"
+
+pages:
+  login:
+    title: "Log in"
+    email: "Email address"
+    password: "Password"
+    submit: "Log in"

@@ -21,3 +21,12 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+when@test:
+    services:
+        # Keep "security.helper" in the container so Codeception's Symfony
+        # module (seeAuthentication / dontSeeAuthentication) can grab it.
+        # Without a reference Symfony removes it as an unused private service.
+        test.security.helper:
+            alias: security.helper
+            public: true

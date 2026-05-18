@@ -11,7 +11,7 @@ services:
       - caddy_config:/config
       - ./symfony:/app
     environment:
-      APP_ENV: "dev"
+      # APP_ENV: "dev"
       DATABASE_URL: "mysql://feedwatch:feedwatch@mariadb:3306/feedwatch?serverVersion=mariadb-11.0.0"
     depends_on:
       - mariadb
