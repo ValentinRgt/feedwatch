@@ -1,0 +1,8 @@
+{% for label, messages in app.flashes %}
+    {% for message in messages %}
+        {% include '@components/_alert.html.twig' with {
+            label: label,
+            message: message
+        } only %}
+    {% endfor %}
+{% endfor %}

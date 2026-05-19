@@ -23,6 +23,7 @@ namespace App\Tests\Support;
 class AcceptanceTester extends \Codeception\Actor
 {
     use _generated\AcceptanceTesterActions;
+    use CommonTrait;
 
     /**
      * Define custom actions here

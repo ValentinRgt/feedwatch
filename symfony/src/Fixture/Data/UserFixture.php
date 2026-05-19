@@ -24,8 +24,18 @@ class UserFixture extends Fixture implements FixtureGroupInterface
         $user->setUsername('Admin');
         $hashedPassword = $this->passwordHasher->hashPassword($user, 'azertyuiop');
         $user->setPassword($hashedPassword);
+        $user->setRoles(['ROLE_ADMIN']);
 
         $manager->persist($user);
+
+        $regular = new User();
+        $regular->setEmail('user@feedwatch.local');
+        $regular->setUsername('User');
+        $hashedPassword = $this->passwordHasher->hashPassword($regular, 'azertyuiop');
+        $regular->setPassword($hashedPassword);
+
+        $manager->persist($regular);
+
         $manager->flush();
     }
 

@@ -9,10 +9,12 @@ use App\Repository\CategoryRepository;
 use App\Trait\DateTimeImmutableTrait;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Table(name: 'categories')]
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
 #[ORM\EntityListeners([CategoryListener::class])]
+#[UniqueEntity(fields: ['name'])]
 class Category
 {
     use DateTimeImmutableTrait;
@@ -22,7 +24,7 @@ class Category
     #[ORM\Column(type: Types::INTEGER)]
     private ?int $id = null;
 
-    #[ORM\Column(type: Types::STRING, length: 255)]
+    #[ORM\Column(type: Types::STRING, length: 255, unique: true)]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::STRING, length: 255)]
