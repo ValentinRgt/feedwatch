@@ -89,7 +89,7 @@
                         {{ category.createdAt|date }}
                     </td>
                     <td class="px-6 py-4">
-                        {{ category.updatedAt|date }}
+                        {{ category.updatedAt ? category.updatedAt|date : "pages.admin.categories.index.not_updated"|trans }}
                     </td>
                     <td class="px-6 py-4">
                         <div class="flex items-center justify-end">
@@ -130,7 +130,7 @@
     </div>
 {% endif %}
 
-{% if categories.getTotalItemCount >= categories.getItemNumberPerPage %}
+{% if categories.getTotalItemCount > categories.getItemNumberPerPage %}
     <section id="pagination">
         <div class="flex p-6 bg-white rounded justify-center">
             {{ knp_pagination_render(categories) }}

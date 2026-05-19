@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use App\EntityListener\CategoryListener;
 use App\Repository\CategoryRepository;
 use App\Trait\DateTimeImmutableTrait;
 use Doctrine\DBAL\Types\Types;
@@ -13,7 +12,6 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Table(name: 'categories')]
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
-#[ORM\EntityListeners([CategoryListener::class])]
 #[UniqueEntity(fields: ['name'])]
 class Category
 {

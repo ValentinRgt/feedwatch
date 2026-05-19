@@ -55,6 +55,7 @@ pages:
         name_placeholder: "Enter category name"
       index:
         no_categories: "No categories created yet."
+        not_updated: "No updates yet."
         title: "FeedWatch :: Category Management"
         table:
           title: "Category Management"
