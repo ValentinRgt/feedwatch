@@ -1,6 +1,7 @@
 navigation:
   header:
-    login: "Log in"
+    login: "Login"
+    categories: "Category Management"
     logout: "Logout"
   sidebar:
     home: "Home"
@@ -33,9 +34,48 @@ command:
       cancelled: "Deletion cancelled."
       success: "User '%username%' deleted successfully!"
 
+pagination:
+  previous: "Previous"
+  next: "Next"
+
 pages:
+  index:
+    title: "FeedWatch :: Home"
+    all_feeds: "All feeds"
+    no_feeds: "No feeds added yet."
   login:
-    title: "Log in"
+    title: "FeedWatch :: Login"
     email: "Email address"
     password: "Password"
     submit: "Log in"
+  admin:
+    categories:
+      form:
+        name: "Category name"
+        name_placeholder: "Enter category name"
+      index:
+        no_categories: "No categories created yet."
+        not_updated: "No updates yet."
+        title: "FeedWatch :: Category Management"
+        table:
+          title: "Category Management"
+          name: "Name"
+          created_at: "Created At"
+          updated_at: "Updated At"
+          actions: "Actions"
+        add_category: "Add category"
+        modal:
+          title: "New category"
+          submit: "Create"
+        delete:
+          confirm:
+            title: "Delete this category?"
+            text: 'The category "%name%" will be permanently deleted. This action cannot be undone.'
+            confirm: "Yes, delete it"
+            cancel: "Cancel"
+          success: 'The category "%name%" has been deleted.'
+          error: "Unable to delete the category. Please try again."
+      edit:
+        title: "FeedWatch :: Edit category %name%"
+        success: "Category updated successfully!"
+        submit: "Update"

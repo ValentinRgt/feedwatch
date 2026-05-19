@@ -17,6 +17,11 @@ class UserDeleteCommandCest
         ]);
     }
 
+    /**
+     * Test that the command successfully deletes an existing user when the deletion is confirmed.
+     * @param FunctionalTester $I
+     * @return void
+     */
     public function itDeletesAUserWhenConfirmed(FunctionalTester $I): void
     {
         $output = $I->runSymfonyConsoleCommand(
@@ -30,6 +35,11 @@ class UserDeleteCommandCest
         $I->dontSeeInRepository(User::class, ['email' => UserFixture::USER_EMAIL]);
     }
 
+    /**
+     * Test that the command does not delete the user when the deletion is cancelled.
+     * @param FunctionalTester $I
+     * @return void
+     */
     public function itKeepsTheUserWhenDeletionIsCancelled(FunctionalTester $I): void
     {
         $output = $I->runSymfonyConsoleCommand(
@@ -43,6 +53,11 @@ class UserDeleteCommandCest
         $I->seeInRepository(User::class, ['email' => UserFixture::USER_EMAIL]);
     }
 
+    /**
+     * Test that the command fails with an appropriate error message when attempting to delete a user that does not exist.
+     * @param FunctionalTester $I
+     * @return void
+     */
     public function itFailsForAnUnknownEmail(FunctionalTester $I): void
     {
         $output = $I->runSymfonyConsoleCommand(

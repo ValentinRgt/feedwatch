@@ -26,6 +26,7 @@ class UserFixture extends Fixture implements FixtureGroupInterface
         $admin = new User();
         $admin->setEmail(self::ADMIN_EMAIL);
         $admin->setUsername('Admin');
+        $admin->setRoles(['ROLE_ADMIN']);
         $hashedPassword = $this->passwordHasher->hashPassword($admin, self::PASSWORD);
         $admin->setPassword($hashedPassword);
 

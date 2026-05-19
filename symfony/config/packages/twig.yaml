@@ -1,7 +1,9 @@
 twig:
     file_name_pattern: '*.twig'
+    form_themes: ['bundles/tailwind_2_layout.html.twig']
     paths:
         '%kernel.project_dir%/templates/layouts': layouts
+        '%kernel.project_dir%/templates/components': components
     globals:
         composer_version: '@App\Twig\ComposerVersion'
 

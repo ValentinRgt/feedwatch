@@ -17,6 +17,11 @@ class UserUpdateCommandCest
         ]);
     }
 
+    /**
+     * Test that the command successfully updates the username of an existing user without changing the password when an empty password is provided.
+     * @param FunctionalTester $I
+     * @return void
+     */
     public function itUpdatesTheUsernameWithoutChangingThePassword(FunctionalTester $I): void
     {
         $before = $I->grabEntityFromRepository(User::class, ['email' => UserFixture::ADMIN_EMAIL]);
@@ -37,6 +42,11 @@ class UserUpdateCommandCest
         $I->assertSame($originalPassword, $user->getPassword());
     }
 
+    /**
+     * Test that the command fails with an appropriate error message when attempting to update a user that does not exist.
+     * @param FunctionalTester $I
+     * @return void
+     */
     public function itFailsForAnUnknownEmail(FunctionalTester $I): void
     {
         $output = $I->runSymfonyConsoleCommand(
