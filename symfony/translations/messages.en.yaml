@@ -70,6 +70,7 @@ pages:
         table:
           title: "Category Management"
           name: "Name"
+          sources: "Sources"
           created_at: "Created At"
           updated_at: "Updated At"
           actions: "Actions"
@@ -88,6 +89,7 @@ pages:
         title: "FeedWatch :: Edit category %name%"
         success: "Category updated successfully!"
         submit: "Update"
+        no_source_associated: "No sources associated with this category yet."
     sources:
       index:
         title: "FeedWatch :: Source Management"

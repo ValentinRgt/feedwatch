@@ -115,12 +115,12 @@
                     </td>
                     <td class="px-6 py-4">
                         <div class="flex items-center justify-end">
-                            <a href="{{ path('app.admin.category.edit', { id: source.id }) }}" class="px-4 py-2 cursor-pointer text-sm font-medium text-white bg-gray-800 hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 border border-gray-200 rounded-s-lg">
+                            <a href="{{ path('app.admin.source.edit', { id: source.id }) }}" class="px-4 py-2 cursor-pointer text-sm font-medium text-white bg-gray-800 hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 border border-gray-200 rounded-s-lg">
                                 {{ ux_icon('bi:pencil') }}
                             </a>
                             <form
                                 method="post"
-                                action="{{ path('app.admin.category.delete', { id: source.id }) }}"
+                                action="{{ path('app.admin.source.delete', { id: source.id }) }}"
                                 data-action="row-actions#confirm"
                                 data-row-actions-title-param="{{ 'pages.admin.categories.index.delete.confirm.title'|trans }}"
                                 data-row-actions-text-param="{{ 'pages.admin.categories.index.delete.confirm.text'|trans({ '%name%': source.name }) }}"

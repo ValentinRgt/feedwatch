@@ -35,6 +35,7 @@ class Source
     private ?string $checksum = null;
 
     #[ORM\ManyToOne(inversedBy: 'sources')]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?Category $category = null;
 
     #[ORM\Column(type: Types::STRING, length: 100, enumType: StatusEnum::class)]

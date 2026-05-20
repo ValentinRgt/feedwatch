@@ -69,6 +69,9 @@
                     {{ 'pages.admin.categories.index.table.name'|trans }}
                 </th>
                 <th scope="col" class="px-6 py-3">
+                    {{ 'pages.admin.categories.index.table.sources'|trans }}
+                </th>
+                <th scope="col" class="px-6 py-3">
                     {{ 'pages.admin.categories.index.table.created_at'|trans }}
                 </th>
                 <th scope="col" class="px-6 py-3">
@@ -85,6 +88,9 @@
                     <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                         {{ category.name }}
                     </th>
+                    <td class="px-6 py-4">
+                        {{ category.sources|length }}
+                    </td>
                     <td class="px-6 py-4">
                         {{ category.createdAt|date }}
                     </td>
