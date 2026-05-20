@@ -2,6 +2,7 @@ navigation:
   header:
     login: "Login"
     categories: "Category Management"
+    sources: "Source Management"
     logout: "Logout"
   sidebar:
     home: "Home"
@@ -38,6 +39,14 @@ pagination:
   previous: "Previous"
   next: "Next"
 
+status:
+  active: "Active"
+  inactive: "Inactive"
+
+format:
+  xml: "XML"
+  html: "HTML"
+
 pages:
   index:
     title: "FeedWatch :: Home"
@@ -54,16 +63,16 @@ pages:
         name: "Category name"
         name_placeholder: "Enter category name"
       index:
+        title: "FeedWatch :: Category Management"
         no_categories: "No categories created yet."
         not_updated: "No updates yet."
-        title: "FeedWatch :: Category Management"
+        add_category: "Add category"
         table:
           title: "Category Management"
           name: "Name"
           created_at: "Created At"
           updated_at: "Updated At"
           actions: "Actions"
-        add_category: "Add category"
         modal:
           title: "New category"
           submit: "Create"
@@ -79,3 +88,23 @@ pages:
         title: "FeedWatch :: Edit category %name%"
         success: "Category updated successfully!"
         submit: "Update"
+    sources:
+      index:
+        title: "FeedWatch :: Source Management"
+        no_sources: "No sources added yet."
+        not_updated: "No updates yet."
+        no_category: "No category assigned"
+        add_source: "Add source"
+        table:
+          title: "Source Management"
+          name: "Name"
+          url: "URL"
+          category: "Category"
+          format: "Format"
+          status: "Status"
+          created_at: "Created At"
+          updated_at: "Updated At"
+          actions: "Actions"
+        modal:
+          title: "New source"
+          submit: "Create"
