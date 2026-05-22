@@ -1,0 +1,14 @@
+# Dépendances et artefacts régénérés dans l'image (cf. Dockerfile.prod).
+vendor/
+var/
+node_modules/
+
+# Environnement local / secrets.
+.env.local
+.env.*.local
+.env.dev
+.env.test
+
+tests/
+phpunit.xml*
+.php-cs-fixer.*
