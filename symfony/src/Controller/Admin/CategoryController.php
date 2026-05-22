@@ -7,6 +7,7 @@ namespace App\Controller\Admin;
 use App\Entity\Category;
 use App\Form\CategoryType;
 use App\Repository\CategoryRepository;
+use App\Repository\SourceRepository;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -49,9 +50,19 @@ final class CategoryController extends AbstractController
     public function edit(
         Category $category,
         CategoryRepository $categoryRepository,
+        SourceRepository $sourceRepository,
         Request $request,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
+        PaginatorInterface $paginator
     ): Response {
+        $sources = $paginator->paginate(
+            $sourceRepository->createQueryBuilder('s')
+                ->where('s.category = :category')->setParameter('category', $category)
+                ->orderBy('s.id')->getQuery(),
+            $request->query->getInt('page', 1),
+            20
+        );
+
         $form = $this->createForm(CategoryType::class, $category);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
@@ -66,7 +77,8 @@ final class CategoryController extends AbstractController
 
         return $this->render('admin/category/edit.html.twig', [
             'category' => $category,
-            'form' => $form->createView()
+            'form' => $form->createView(),
+            'sources' => $sources
         ]);
     }
 
@@ -77,6 +89,7 @@ final class CategoryController extends AbstractController
         CategoryRepository $categoryRepository
     ): Response {
         if ($this->isCsrfTokenValid('delete' . $category->getId(), (string) $request->getPayload()->get('_token'))) {
+            $category->getSources()->clear();
             $categoryRepository->remove($category, true);
         }
 

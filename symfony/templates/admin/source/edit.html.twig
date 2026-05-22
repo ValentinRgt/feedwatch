@@ -1,0 +1,25 @@
+{% extends '@layouts/base.html.twig' %}
+
+{% block title %}{{ 'pages.admin.sources.edit.title'|trans({'%name%': source.name}) }}{% endblock %}
+
+{% block body %}
+<section class="p-6 bg-white rounded mb-3">
+    <div class="flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between">
+        <h1 class="text-xl font-bold">{{ source.name }}</h1>
+    </div>
+</section>
+
+<div class="p-4 bg-gray-100/60 rounded-lg shadow-md">
+    {{ form_start(form) }}
+        {{ form_row(form.name) }}
+        {{ form_row(form.url) }}
+        {{ form_row(form.category) }}
+        {{ form_row(form.format) }}
+        {{ form_row(form.periodicity) }}
+        {{ form_row(form.status) }}
+        <button type="submit" class="w-full col-span-2 text-white bg-gray-800 hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none cursor-pointer">
+            {{ 'pages.admin.sources.edit.submit'|trans }}
+        </button>
+    {{ form_end(form) }}
+</div>
+{% endblock %}

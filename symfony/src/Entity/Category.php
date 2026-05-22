@@ -6,6 +6,8 @@ namespace App\Entity;
 
 use App\Repository\CategoryRepository;
 use App\Trait\DateTimeImmutableTrait;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -27,6 +29,17 @@ class Category
 
     #[ORM\Column(type: Types::STRING, length: 255)]
     private ?string $slug = null;
+
+    /**
+     * @var Collection<int, Source>
+     */
+    #[ORM\OneToMany(targetEntity: Source::class, mappedBy: 'category')]
+    private Collection $sources;
+
+    public function __construct()
+    {
+        $this->sources = new ArrayCollection();
+    }
 
     /**
      * @return int|null
@@ -70,6 +83,44 @@ class Category
     public function setSlug(string $slug): static
     {
         $this->slug = $slug;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Source>
+     */
+    public function getSources(): Collection
+    {
+        return $this->sources;
+    }
+
+    /**
+     * @param Source $source
+     * @return $this
+     */
+    public function addSource(Source $source): static
+    {
+        if (!$this->sources->contains($source)) {
+            $this->sources->add($source);
+            $source->setCategory($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param Source $source
+     * @return $this
+     */
+    public function removeSource(Source $source): static
+    {
+        if ($this->sources->removeElement($source)) {
+            // set the owning side to null (unless already changed)
+            if ($source->getCategory() === $this) {
+                $source->setCategory(null);
+            }
+        }
 
         return $this;
     }

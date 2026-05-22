@@ -1,6 +1,6 @@
 {% extends '@layouts/base.html.twig' %}
 
-{% block title %}{{ 'pages.admin.categories.index.title'|trans }}{% endblock %}
+{% block title %}{{ 'pages.admin.sources.index.title'|trans }}{% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
@@ -23,9 +23,9 @@
 {% block body %}
 <section class="p-6 bg-white rounded mb-3">
     <div class="flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between">
-        <h1 class="text-xl font-bold">{{ 'pages.admin.categories.index.table.title'|trans }}</h1>
+        <h1 class="text-xl font-bold">{{ 'pages.admin.sources.index.table.title'|trans }}</h1>
         <button data-modal-target="create-modal" data-modal-toggle="create-modal" class="text-white bg-gray-800 hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none cursor-pointer">
-            {{ 'pages.admin.categories.index.add_category'|trans }}
+            {{ 'pages.admin.sources.index.add_source'|trans }}
         </button>
     </div>
 </section>
@@ -39,7 +39,7 @@
             <!-- Modal header -->
             <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t border-gray-200">
                 <h3 class="text-xl font-semibold text-gray-900">
-                    {{ 'pages.admin.categories.index.modal.title'|trans }}
+                    {{ 'pages.admin.sources.index.modal.title'|trans }}
                 </h3>
                 <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center" data-modal-hide="create-modal">
                     <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
@@ -52,8 +52,13 @@
             <div class="p-4 md:p-5 space-y-4">
                 {{ form_start(form) }}
                     {{ form_row(form.name) }}
-                    <button type="submit" class="w-full text-white bg-gray-800 hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none cursor-pointer">
-                        {{ 'pages.admin.categories.index.modal.submit'|trans }}
+                    {{ form_row(form.url) }}
+                    {{ form_row(form.category) }}
+                    {{ form_row(form.format) }}
+                    {{ form_row(form.periodicity) }}
+                    {{ form_row(form.status) }}
+                    <button type="submit" class="w-full col-span-2 text-white bg-gray-800 hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none cursor-pointer">
+                        {{ 'pages.admin.sources.index.modal.submit'|trans }}
                     </button>
                 {{ form_end(form) }}
             </div>
@@ -66,52 +71,70 @@
         <thead class="text-xs text-white uppercase bg-gray-800">
             <tr>
                 <th scope="col" class="px-6 py-3">
-                    {{ 'pages.admin.categories.index.table.name'|trans }}
+                    {{ 'pages.admin.sources.index.table.name'|trans }}
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    {{ 'pages.admin.categories.index.table.sources'|trans }}
+                    {{ 'pages.admin.sources.index.table.category'|trans }}
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    {{ 'pages.admin.categories.index.table.created_at'|trans }}
+                    {{ 'pages.admin.sources.index.table.format'|trans }}
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    {{ 'pages.admin.categories.index.table.updated_at'|trans }}
+                    {{ 'pages.admin.sources.index.table.status'|trans }}
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    {{ 'pages.admin.sources.index.table.created_at'|trans }}
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    {{ 'pages.admin.sources.index.table.last_fetched_at'|trans }}
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    {{ 'pages.admin.sources.index.table.updated_at'|trans }}
                 </th>
                 <th scope="col" class="text-right px-6 py-3">
-                    {{ 'pages.admin.categories.index.table.actions'|trans }}
+                    {{ 'pages.admin.sources.index.table.actions'|trans }}
                 </th>
             </tr>
         </thead>
         <tbody data-controller="row-actions">
-            {% for category in categories %}
+            {% for source in sources %}
                 <tr class="bg-white border-b border-gray-200">
                     <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                        {{ category.name }}
+                        {{ source.name }}
                     </th>
                     <td class="px-6 py-4">
-                        {{ category.sources|length }}
+                        {{ source.category ? source.category.name : "pages.admin.sources.index.no_category"|trans }}
                     </td>
                     <td class="px-6 py-4">
-                        {{ category.createdAt|date }}
+                        {{ source.format|trans }}
                     </td>
                     <td class="px-6 py-4">
-                        {{ category.updatedAt ? category.updatedAt|date : "pages.admin.categories.index.not_updated"|trans }}
+                        {{ source.status|trans }}
+                    </td>
+                    <td class="px-6 py-4">
+                        {{ source.createdAt|date }}
+                    </td>
+                    <td class="px-6 py-4">
+                        {{ source.lastFetchedAt ? source.lastFetchedAt|date : "pages.admin.sources.index.not_updated"|trans }}
+                    </td>
+                    <td class="px-6 py-4">
+                        {{ source.updatedAt ? source.updatedAt|date : "pages.admin.sources.index.not_updated"|trans }}
                     </td>
                     <td class="px-6 py-4">
                         <div class="flex items-center justify-end">
-                            <a href="{{ path('app.admin.category.edit', { id: category.id }) }}" class="px-4 py-2 cursor-pointer text-sm font-medium text-white bg-gray-800 hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 border border-gray-200 rounded-s-lg">
+                            <a href="{{ path('app.admin.source.edit', { id: source.id }) }}" class="px-4 py-2 cursor-pointer text-sm font-medium text-white bg-gray-800 hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 border border-gray-200 rounded-s-lg">
                                 {{ ux_icon('bi:pencil') }}
                             </a>
                             <form
                                 method="post"
-                                action="{{ path('app.admin.category.delete', { id: category.id }) }}"
+                                action="{{ path('app.admin.source.delete', { id: source.id }) }}"
                                 data-action="row-actions#confirm"
                                 data-row-actions-title-param="{{ 'pages.admin.categories.index.delete.confirm.title'|trans }}"
-                                data-row-actions-text-param="{{ 'pages.admin.categories.index.delete.confirm.text'|trans({ '%name%': category.name }) }}"
+                                data-row-actions-text-param="{{ 'pages.admin.categories.index.delete.confirm.text'|trans({ '%name%': source.name }) }}"
                                 data-row-actions-confirm-param="{{ 'pages.admin.categories.index.delete.confirm.confirm'|trans }}"
                                 data-row-actions-cancel-param="{{ 'pages.admin.categories.index.delete.confirm.cancel'|trans }}"
                             >
-                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ category.id) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ source.id) }}">
                                 <button type="submit" class="px-4 py-2 cursor-pointer text-sm font-medium text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 border border-gray-200 rounded-e-lg">
                                     {{ ux_icon('bi:trash') }}
                                 </button>
@@ -124,7 +147,7 @@
     </table>
 </div>
 
-{% if categories|length is same as(0) %}
+{% if sources|length is same as(0) %}
     <div class="flex items-center p-4 mt-4 text-sm text-blue-800 rounded-lg bg-blue-50" role="alert">
         <svg class="shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
             <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
@@ -136,10 +159,10 @@
     </div>
 {% endif %}
 
-{% if categories.getTotalItemCount > categories.getItemNumberPerPage %}
+{% if sources.getTotalItemCount > sources.getItemNumberPerPage %}
     <section id="pagination">
         <div class="flex p-6 bg-white rounded justify-center">
-            {{ knp_pagination_render(categories) }}
+            {{ knp_pagination_render(sources) }}
         </div>
     </section>
 {% endif %}
