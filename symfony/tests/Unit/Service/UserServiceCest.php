@@ -10,104 +10,142 @@ use App\Repository\UserRepository;
 use App\Service\UserService;
 use App\Tests\Support\UnitTester;
 use Codeception\Stub;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 /**
- * Per request, both UserService and UserRepository are mocked here.
+ * Unit tests for the *real* UserService logic.
  *
- * Note: because UserService itself is doubled, these tests exercise the
- * mocked contract (return values / callability of UserInterface and
- * UserRepository), not the real internal logic of UserService.
+ * UserRepository is replaced by a tiny in-memory subclass: its
+ * findOneByEmail() is a magic (@method) call that cannot be stubbed through
+ * Codeception\Stub, and the subclass also lets us capture save()/remove()
+ * calls. The password hasher is a simple stub that prefixes the plain text.
  */
 class UserServiceCest
 {
-    private function repository(): UserRepository
+    /**
+     * In-memory UserRepository double recording persisted/removed users.
+     */
+    private function repository(?User $found = null): UserRepository
     {
-        /** @var UserRepository $repository */
-        $repository = Stub::makeEmpty(UserRepository::class);
+        return new class ($found) extends UserRepository {
+            /** @var User[] */
+            public array $saved = [];
+            /** @var User[] */
+            public array $removed = [];
 
-        return $repository;
+            public function __construct(private readonly ?User $found = null)
+            {
+            }
+
+            public function findOneByEmail(string $email): ?User
+            {
+                return $this->found;
+            }
+
+            public function save(User $user, bool $flush = false): void
+            {
+                $this->saved[] = $user;
+            }
+
+            public function remove(User $user, bool $flush = false): void
+            {
+                $this->removed[] = $user;
+            }
+        };
     }
 
-    public function alreadyExistReflectsTheMockedReturnValue(UnitTester $I): void
+    private function hasher(): UserPasswordHasherInterface
     {
-        /** @var UserService $service */
-        $service = Stub::makeEmpty(UserService::class, [
-            'alreadyExist' => fn (string $email): bool => 'known@feedwatch.local' === $email,
+        /** @var UserPasswordHasherInterface $hasher */
+        $hasher = Stub::makeEmpty(UserPasswordHasherInterface::class, [
+            'hashPassword' => fn (object $user, string $plain): string => 'hashed:' . $plain,
         ]);
 
-        $I->assertTrue($service->alreadyExist('known@feedwatch.local'));
-        $I->assertFalse($service->alreadyExist('other@feedwatch.local'));
+        return $hasher;
     }
 
-    public function findByEmailReturnsTheMockedUser(UnitTester $I): void
+    public function serviceImplementsTheUserInterfaceContract(UnitTester $I): void
     {
-        $expected = (new User())->setEmail('john@feedwatch.local');
-        /** @var UserService $service */
-        $service = Stub::makeEmpty(UserService::class, [
-            'findByEmail' => $expected,
-        ]);
-
-        $I->assertSame($expected, $service->findByEmail('john@feedwatch.local'));
-    }
-
-    public function findByEmailReturnsNullWhenMocked(UnitTester $I): void
-    {
-        /** @var UserService $service */
-        $service = Stub::makeEmpty(UserService::class, [
-            'findByEmail' => null,
-        ]);
-
-        $I->assertNull($service->findByEmail('missing@feedwatch.local'));
-    }
-
-    public function writeOperationsAreCallableOnTheMock(UnitTester $I): void
-    {
-        $calls = [];
-        /** @var UserService $service */
-        $service = Stub::makeEmpty(UserService::class, [
-            'createAdmin' => function () use (&$calls): void {
-                $calls[] = 'create';
-            },
-            'updateAdmin' => function () use (&$calls): void {
-                $calls[] = 'update';
-            },
-            'deleteAdmin' => function () use (&$calls): void {
-                $calls[] = 'delete';
-            },
-        ]);
-
-        $user = (new User())->setEmail('admin@feedwatch.local');
-        $service->createAdmin('admin@feedwatch.local', 'Admin', 'plain-password');
-        $service->updateAdmin($user, 'Admin', null);
-        $service->deleteAdmin($user);
-
-        $I->assertSame(['create', 'update', 'delete'], $calls);
-    }
-
-    public function serviceMockHonorsTheUserInterfaceContract(UnitTester $I): void
-    {
-        /** @var UserService $service */
-        $service = Stub::makeEmpty(UserService::class);
+        $service = new UserService($this->repository(), $this->hasher());
 
         $I->assertInstanceOf(UserInterface::class, $service);
     }
 
-    public function repositoryMockIsAUserRepositoryInstance(UnitTester $I): void
+    public function alreadyExistIsTrueWhenTheRepositoryFindsAUser(UnitTester $I): void
     {
-        $repository = $this->repository();
+        $service = new UserService($this->repository(new User()), $this->hasher());
 
-        $I->assertInstanceOf(UserRepository::class, $repository);
+        $I->assertTrue($service->alreadyExist('known@feedwatch.local'));
     }
 
-    public function repositoryMockReturnsConfiguredValues(UnitTester $I): void
+    public function alreadyExistIsFalseWhenTheRepositoryFindsNothing(UnitTester $I): void
     {
-        $user = (new User())->setEmail('john@feedwatch.local');
-        /** @var UserRepository $repository */
-        $repository = Stub::makeEmpty(UserRepository::class, [
-            // "findOneByEmail" is magic (__call -> findOneBy), so stub findOneBy.
-            'findOneBy' => $user,
-        ]);
+        $service = new UserService($this->repository(null), $this->hasher());
 
-        $I->assertSame($user, $repository->findOneBy(['email' => 'john@feedwatch.local']));
+        $I->assertFalse($service->alreadyExist('missing@feedwatch.local'));
+    }
+
+    public function findByEmailReturnsTheUserFromTheRepository(UnitTester $I): void
+    {
+        $expected = (new User())->setEmail('john@feedwatch.local');
+        $service = new UserService($this->repository($expected), $this->hasher());
+
+        $I->assertSame($expected, $service->findByEmail('john@feedwatch.local'));
+    }
+
+    public function createAdminHashesPasswordAndAssignsTheAdminRole(UnitTester $I): void
+    {
+        $repository = $this->repository();
+        $service = new UserService($repository, $this->hasher());
+
+        $service->createAdmin('admin@feedwatch.local', 'Admin', 'plain-password');
+
+        $I->assertCount(1, $repository->saved);
+        $created = $repository->saved[0];
+        $I->assertSame('admin@feedwatch.local', $created->getEmail());
+        $I->assertSame('Admin', $created->getUsername());
+        $I->assertContains('ROLE_ADMIN', $created->getRoles());
+        $I->assertSame('hashed:plain-password', $created->getPassword());
+    }
+
+    public function updateAdminChangesUsernameAndRehashesPasswordWhenProvided(UnitTester $I): void
+    {
+        $repository = $this->repository();
+        $service = new UserService($repository, $this->hasher());
+        $user = (new User())
+            ->setUsername('Old')
+            ->setPassword('previous-hash');
+
+        $service->updateAdmin($user, 'NewName', 'new-password');
+
+        $I->assertSame('NewName', $user->getUsername());
+        $I->assertSame('hashed:new-password', $user->getPassword());
+        $I->assertSame([$user], $repository->saved);
+    }
+
+    public function updateAdminKeepsTheCurrentPasswordWhenNoneIsProvided(UnitTester $I): void
+    {
+        $repository = $this->repository();
+        $service = new UserService($repository, $this->hasher());
+        $user = (new User())
+            ->setUsername('Old')
+            ->setPassword('previous-hash');
+
+        $service->updateAdmin($user, 'NewName', null);
+
+        $I->assertSame('NewName', $user->getUsername());
+        $I->assertSame('previous-hash', $user->getPassword());
+        $I->assertSame([$user], $repository->saved);
+    }
+
+    public function deleteAdminRemovesTheUserFromTheRepository(UnitTester $I): void
+    {
+        $repository = $this->repository();
+        $service = new UserService($repository, $this->hasher());
+        $user = (new User())->setEmail('admin@feedwatch.local');
+
+        $service->deleteAdmin($user);
+
+        $I->assertSame([$user], $repository->removed);
     }
 }

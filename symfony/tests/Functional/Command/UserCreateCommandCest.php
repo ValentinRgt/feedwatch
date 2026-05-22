@@ -54,4 +54,62 @@ class UserCreateCommandCest
 
         $I->assertStringContainsString('Passwords do not match', $output);
     }
+
+    /**
+     * The email validator rejects a malformed address, then accepts a valid one
+     * provided on the next attempt.
+     * @param FunctionalTester $I
+     * @return void
+     */
+    public function itRecoversFromAMalformedEmail(FunctionalTester $I): void
+    {
+        $output = $I->runSymfonyConsoleCommand(
+            'app:user:create',
+            [],
+            ['not-an-email', 'valid.admin@feedwatch.local', 'ValidAdmin', 'super-secret', 'super-secret'],
+            0
+        );
+
+        $I->assertStringContainsString('created successfully', $output);
+        $I->seeInRepository(User::class, ['email' => 'valid.admin@feedwatch.local']);
+    }
+
+    /**
+     * The email validator rejects an address that already belongs to a user,
+     * then accepts a fresh one.
+     * @param FunctionalTester $I
+     * @return void
+     */
+    public function itRejectsAnAlreadyRegisteredEmailThenSucceeds(FunctionalTester $I): void
+    {
+        $output = $I->runSymfonyConsoleCommand(
+            'app:user:create',
+            [],
+            [UserFixture::ADMIN_EMAIL, 'fresh.admin@feedwatch.local', 'FreshAdmin', 'super-secret', 'super-secret'],
+            0
+        );
+
+        $I->assertStringContainsString('created successfully', $output);
+        $I->seeInRepository(User::class, ['email' => 'fresh.admin@feedwatch.local']);
+    }
+
+    /**
+     * The username and password validators reject too-short values, then accept
+     * the corrected ones provided on the following attempts.
+     * @param FunctionalTester $I
+     * @return void
+     */
+    public function itRecoversFromTooShortUsernameAndPassword(FunctionalTester $I): void
+    {
+        $output = $I->runSymfonyConsoleCommand(
+            'app:user:create',
+            [],
+            ['short.fields@feedwatch.local', 'ab', 'GoodName', 'short', 'long-enough', 'long-enough'],
+            0
+        );
+
+        $I->assertStringContainsString('created successfully', $output);
+        $user = $I->grabEntityFromRepository(User::class, ['email' => 'short.fields@feedwatch.local']);
+        $I->assertSame('GoodName', $user->getUsername());
+    }
 }
