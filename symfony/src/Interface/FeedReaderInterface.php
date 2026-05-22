@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Interface;
 
-use App\Enum\FormatEnum;
+use App\DTO\ArticleDTO;
 use App\Entity\Source;
+use App\Enum\FormatEnum;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 #[AutoconfigureTag]
@@ -19,7 +20,7 @@ interface FeedReaderInterface
 
     /**
      * @param Source $source
-     * @return array|null
+     * @return array<string, string|array<int, ArticleDTO>>|null
      */
     public function read(Source $source): ?array;
 }

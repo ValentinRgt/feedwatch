@@ -21,28 +21,28 @@ class ArticleRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param Article $Article
+     * @param Article $article
      * @param bool $flush
      * @return void
      * @SuppressWarnings("PHPMD.BooleanArgumentFlag")
      */
-    public function save(Article $Article, bool $flush = false): void
+    public function save(Article $article, bool $flush = false): void
     {
-        $this->getEntityManager()->persist($Article);
+        $this->getEntityManager()->persist($article);
         if ($flush) {
             $this->getEntityManager()->flush();
         }
     }
 
     /**
-     * @param Article $Article
+     * @param Article $article
      * @param bool $flush
      * @return void
      * @SuppressWarnings("PHPMD.BooleanArgumentFlag")
      */
-    public function remove(Article $Article, bool $flush = false): void
+    public function remove(Article $article, bool $flush = false): void
     {
-        $this->getEntityManager()->remove($Article);
+        $this->getEntityManager()->remove($article);
         if ($flush) {
             $this->getEntityManager()->flush();
         }
@@ -68,10 +68,12 @@ class ArticleRepository extends ServiceEntityRepository
      */
     public function findByCategoryQuery(?Category $category = null): Query
     {
-        $qb = $this->createQueryBuilder('a')
-            ->innerJoin('a.source', 's')
-            ->leftJoin('s.category', 'c')
-            ->orderBy('a.publishedAt', 'DESC')
+        $qb = $this->createQueryBuilder('a');
+
+        $qb->innerJoin('a.source', 's')
+            ->leftJoin('s.category', 'c');
+
+        $qb->orderBy('a.publishedAt', 'DESC')
             ->addOrderBy('a.createdAt', 'DESC');
 
         if (null !== $category) {

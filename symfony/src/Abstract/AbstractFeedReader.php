@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Abstract;
 
+use App\DTO\ArticleDTO;
 use DateTimeImmutable;
 use Exception;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -55,8 +56,8 @@ abstract class AbstractFeedReader
     }
 
     /**
-     * @param mixed $xml
-     * @return array
+     * @param mixed $content
+     * @return array<int, ArticleDTO>
      */
-    abstract protected function parseItems($xml): array;
+    abstract protected function parseItems(mixed $content): array;
 }

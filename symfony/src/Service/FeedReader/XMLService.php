@@ -49,11 +49,11 @@ class XMLService extends AbstractFeedReader implements FeedReaderInterface
     /**
      * @inheritdoc
      */
-    protected function parseItems($xml): array
+    protected function parseItems(mixed $content): array
     {
         $items = [];
 
-        foreach ($xml->channel->item as $item) {
+        foreach ($content->channel->item as $item) {
             $articleDTO = new ArticleDTO();
             $articleDTO->checksum = $this->checksum((string) $item->title . (string) $item->link);
             $articleDTO->title = (string) $item->title;

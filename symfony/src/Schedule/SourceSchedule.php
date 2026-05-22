@@ -12,13 +12,17 @@ use Symfony\Component\Scheduler\ScheduleProviderInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 
 #[AsSchedule('source')]
-final class SourceSchedule implements ScheduleProviderInterface
+final readonly class SourceSchedule implements ScheduleProviderInterface
 {
     public function __construct(
         private CacheInterface $cache,
     ) {
     }
 
+    /**
+     * @return Schedule
+     * @SuppressWarnings("PHPMD.StaticAccess")
+     */
     public function getSchedule(): Schedule
     {
         return (new Schedule())

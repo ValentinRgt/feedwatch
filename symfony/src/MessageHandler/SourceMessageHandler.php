@@ -14,22 +14,26 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
-final class SourceMessageHandler
+final readonly class SourceMessageHandler
 {
     public function __construct(
-        private readonly SourceRepository $sourceRepository,
-        private readonly SourceService $sourceService,
-        private readonly ArticleService $articleService,
-        private readonly LoggerInterface $logger,
+        private SourceRepository $sourceRepository,
+        private SourceService $sourceService,
+        private ArticleService $articleService,
+        private LoggerInterface $logger,
     ) {
     }
 
+    /**
+     * @param SourceMessage $message
+     * @return void
+     * @SuppressWarnings("PHPMD.UnusedFormalParameter")
+     */
     public function __invoke(SourceMessage $message): void
     {
         $sources = $this->sourceRepository->findDueSources();
 
         foreach ($sources as $source) {
-            /** @var FeedReaderInterface $reader */
             $reader = $this->sourceService->getReader($source->getFormat());
 
             $content = $reader->read($source);

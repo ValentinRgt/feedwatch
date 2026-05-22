@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Repository;
 
 use App\Entity\Source;
-use App\Enum\FormatEnum;
 use App\Enum\PeriodicityEnum;
 use App\Enum\StatusEnum;
 use DateTimeImmutable;
@@ -52,6 +51,7 @@ class SourceRepository extends ServiceEntityRepository
 
     /**
      * @return Source[]
+     * @SuppressWarnings("PHPMD.StaticAccess")
      */
     public function findDueSources(): array
     {
