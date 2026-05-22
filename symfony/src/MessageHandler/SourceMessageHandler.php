@@ -43,11 +43,6 @@ final readonly class SourceMessageHandler
                 continue;
             }
 
-            if ($source->getChecksum() === $content['checksum']) {
-                $this->logger->info(sprintf('Source "%s" has not changed since the last fetch.', $source->getName()));
-                continue;
-            }
-
             $source->setChecksum($content['checksum']);
             $source->setLastFetchedAt(new DateTimeImmutable());
             $this->sourceService->updateSource($source);

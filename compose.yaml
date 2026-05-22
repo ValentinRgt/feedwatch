@@ -13,24 +13,10 @@ services:
       - .docker/php/php.ini:/usr/local/etc/php/conf.d/feedwatch.ini:ro
     environment:
       APP_ENV: "dev"
-      DATABASE_URL: "mysql://feedwatch:feedwatch@mariadb:3306/feedwatch?serverVersion=mariadb-11.0.0"
+      DATABASE_URL: "sqlite:///%kernel.project_dir%/var/data_%kernel.environment%.db"
     depends_on:
       - mariadb
-
-  mariadb:
-    image: mariadb:latest
-    environment:
-      - MYSQL_ROOT_PASSWORD=toor
-      - MYSQL_DATABASE=feedwatch
-      - MYSQL_USER=feedwatch
-      - MYSQL_PASSWORD=feedwatch
-    ports:
-      - "3306:3306"
-    volumes:
-      - mariadb_data:/var/lib/mysql
-      - ./.docker/mariadb/init.sql:/docker-entrypoint-initdb.d/init.sql
 
 volumes:
   caddy_data: {}
   caddy_config: {}
-  mariadb_data: {}
