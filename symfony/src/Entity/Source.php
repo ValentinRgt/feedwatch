@@ -10,6 +10,8 @@ use App\Enum\StatusEnum;
 use App\Repository\SourceRepository;
 use App\Trait\DateTimeImmutableTrait;
 use DateTimeImmutable;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -48,6 +50,17 @@ class Source
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?DateTimeImmutable $lastFetchedAt = null;
+
+    /**
+     * @var Collection<int, Article>
+     */
+    #[ORM\OneToMany(targetEntity: Article::class, mappedBy: 'source')]
+    private Collection $articles;
+
+    public function __construct()
+    {
+        $this->articles = new ArrayCollection();
+    }
 
     /**
      * @return int|null
@@ -199,6 +212,43 @@ class Source
     public function setLastFetchedAt(?DateTimeImmutable $lastFetchedAt): static
     {
         $this->lastFetchedAt = $lastFetchedAt;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Article>
+     */
+    public function getArticles(): Collection
+    {
+        return $this->articles;
+    }
+
+    /**
+     * @param Article $article
+     * @return $this
+     */
+    public function addArticle(Article $article): static
+    {
+        if (!$this->articles->contains($article)) {
+            $this->articles->add($article);
+            $article->setSource($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param Article $article
+     * @return $this
+     */
+    public function removeArticle(Article $article): static
+    {
+        if ($this->articles->removeElement($article)) {
+            if ($article->getSource() === $this) {
+                $article->setSource(null);
+            }
+        }
 
         return $this;
     }

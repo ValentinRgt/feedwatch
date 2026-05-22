@@ -58,7 +58,7 @@ class XMLService extends AbstractFeedReader implements FeedReaderInterface
             $articleDTO->checksum = $this->checksum((string) $item->title . (string) $item->link);
             $articleDTO->title = (string) $item->title;
             $articleDTO->link = (string) $item->link;
-            //$articleDTO->description = (string) $item->description;
+            $articleDTO->publishedAt = $this->parseDate((string) $item->pubDate);
             $items[] = $articleDTO;
         }
 

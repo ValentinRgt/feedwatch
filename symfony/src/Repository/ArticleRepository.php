@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Repository;
 
 use App\Entity\Article;
-use App\Enum\FormatEnum;
-use App\Enum\StatusEnum;
+use App\Entity\Category;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Query;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -60,5 +60,25 @@ class ArticleRepository extends ServiceEntityRepository
             ->setParameter('checksums', $checksums)
             ->getQuery()
             ->getSingleColumnResult();
+    }
+
+    /**
+     * @param Category|null $category
+     * @return Query
+     */
+    public function findByCategoryQuery(?Category $category = null): Query
+    {
+        $qb = $this->createQueryBuilder('a')
+            ->innerJoin('a.source', 's')
+            ->leftJoin('s.category', 'c')
+            ->orderBy('a.publishedAt', 'DESC')
+            ->addOrderBy('a.createdAt', 'DESC');
+
+        if (null !== $category) {
+            $qb->andWhere('s.category = :category')
+                ->setParameter('category', $category);
+        }
+
+        return $qb->getQuery();
     }
 }

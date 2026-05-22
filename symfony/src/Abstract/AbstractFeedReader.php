@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Abstract;
 
+use DateTimeImmutable;
+use Exception;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 abstract class AbstractFeedReader
@@ -31,6 +33,25 @@ abstract class AbstractFeedReader
     protected function checksum(string $content): string
     {
         return hash('sha512', $content);
+    }
+
+    /**
+     * @param string|null $value
+     * @return DateTimeImmutable|null
+     */
+    protected function parseDate(?string $value): ?DateTimeImmutable
+    {
+        $value = trim((string) $value);
+
+        if (empty($value)) {
+            return null;
+        }
+
+        try {
+            return new DateTimeImmutable($value);
+        } catch (Exception) {
+            return null;
+        }
     }
 
     /**

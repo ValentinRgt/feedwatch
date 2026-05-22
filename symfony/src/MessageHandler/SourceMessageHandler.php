@@ -48,7 +48,7 @@ final class SourceMessageHandler
             $source->setLastFetchedAt(new DateTimeImmutable());
             $this->sourceService->updateSource($source);
 
-            $this->articleService->createArticlesFromContent($content['items']);
+            $this->articleService->createArticlesFromContent($content['items'], $source);
         }
     }
 }

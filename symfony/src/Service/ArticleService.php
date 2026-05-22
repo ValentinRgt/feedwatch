@@ -6,6 +6,7 @@ namespace App\Service;
 
 use App\DTO\ArticleDTO;
 use App\Entity\Article;
+use App\Entity\Source;
 use App\Repository\ArticleRepository;
 use Symfony\Component\ObjectMapper\ObjectMapperInterface;
 
@@ -19,9 +20,10 @@ class ArticleService
 
     /**
      * @param array<int, ArticleDTO> $articles
+     * @param Source $source
      * @return void
      */
-    public function createArticlesFromContent(array $articles): void
+    public function createArticlesFromContent(array $articles, Source $source): void
     {
         $checksums = array_map(fn (ArticleDTO $article) => $article->checksum, $articles);
         $existingChecksums = $this->articleRepository->findExistingChecksums($checksums);
@@ -33,6 +35,7 @@ class ArticleService
 
         foreach ($articles as $article) {
             $article = $this->objectMapper->map($article, Article::class);
+            $article->setSource($source);
             $this->articleRepository->save($article, true);
         }
     }

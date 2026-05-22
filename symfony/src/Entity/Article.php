@@ -6,6 +6,7 @@ namespace App\Entity;
 
 use App\Repository\ArticleRepository;
 use App\Trait\DateTimeImmutableTrait;
+use DateTimeImmutable;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -28,6 +29,13 @@ class Article
 
     #[ORM\Column(type: Types::STRING, length: 255)]
     private ?string $link = null;
+
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?DateTimeImmutable $publishedAt = null;
+
+    #[ORM\ManyToOne(inversedBy: 'articles')]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    private ?Source $source = null;
 
     /**
      * @return int|null
@@ -90,6 +98,44 @@ class Article
     public function setLink(?string $link): static
     {
         $this->link = $link;
+
+        return $this;
+    }
+
+    /**
+     * @return DateTimeImmutable|null
+     */
+    public function getPublishedAt(): ?DateTimeImmutable
+    {
+        return $this->publishedAt;
+    }
+
+    /**
+     * @param DateTimeImmutable|null $publishedAt
+     * @return $this
+     */
+    public function setPublishedAt(?DateTimeImmutable $publishedAt): static
+    {
+        $this->publishedAt = $publishedAt;
+
+        return $this;
+    }
+
+    /**
+     * @return Source|null
+     */
+    public function getSource(): ?Source
+    {
+        return $this->source;
+    }
+
+    /**
+     * @param Source|null $source
+     * @return $this
+     */
+    public function setSource(?Source $source): static
+    {
+        $this->source = $source;
 
         return $this;
     }

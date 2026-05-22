@@ -56,9 +56,34 @@
     </div>
 
     {% if feeds|length > 0 %}
-        {% for feed in feeds %}
+        <div class="grid items-start gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {% for feed in feeds %}
+                <article class="p-4 bg-white rounded-lg border border-gray-200 shadow-md">
+                    <h2 class="mb-3 text-lg font-bold uppercase">
+                        <a href="{{ feed.link }}" class="text-gray-800" target="_blank">
+                            {{ feed.title }}
+                        </a>
+                    </h2>
+                    <p class="text-md font-normal text-gray-500 inline-flex items-center">
+                        {{ ux_icon('bi:calendar-week-fill', { class: 'me-2' }) }}
+                        {% set published = feed.publishedAt ?? feed.createdAt %}
+                        <span>{{ published|date }}</span>
+                    </p>
+                    <div>
+                        <span class="bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm">{{ feed.source.name }}</span>
+                        <span class="bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm">{{ feed.source.category.name }}</span>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
 
-        {% endfor %}
+        {% if feeds.getTotalItemCount > feeds.getItemNumberPerPage %}
+            <section id="pagination">
+                <div class="flex p-6 bg-white rounded justify-center">
+                    {{ knp_pagination_render(feeds) }}
+                </div>
+            </section>
+        {% endif %}
     {% else %}
         <div class="flex items-center p-4 text-sm text-blue-800 rounded-lg bg-blue-50" role="alert">
             <svg class="shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
