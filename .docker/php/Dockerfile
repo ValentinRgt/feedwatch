@@ -43,6 +43,9 @@ ENV APP_SECRET=
 
 RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
+RUN apt-get update && apt-get install -y --no-install-recommends supervisor \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 COPY --from=builder /app ./
@@ -51,28 +54,10 @@ RUN mkdir -p var \
     && chown -R www-data:www-data var
 VOLUME /app/var
 
-COPY <<'SH' /usr/local/bin/docker-entrypoint
-#!/bin/sh
-set -e
+COPY --from=dockerconf supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-if [ -z "${APP_SECRET:-}" ]; then
-    APP_SECRET="$(php -r 'echo bin2hex(random_bytes(16));')"
-    export APP_SECRET
-fi
-
-if [ "$1" = "frankenphp" ]; then
-    php bin/console doctrine:migrations:migrate \
-        --no-interaction \
-        --all-or-nothing \
-        --allow-no-migration
-
-    php bin/console cache:clear --no-warmup
-    php bin/console cache:warmup
-fi
-
-exec docker-php-entrypoint "$@"
-SH
+COPY --from=dockerconf docker-entrypoint.sh /usr/local/bin/docker-entrypoint
 RUN chmod +x /usr/local/bin/docker-entrypoint
 
 ENTRYPOINT ["docker-entrypoint"]
-CMD ["frankenphp", "run", "--config", "/etc/caddy/Caddyfile"]
+CMD ["supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

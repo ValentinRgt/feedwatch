@@ -1,6 +1,34 @@
 {
+    "name": "valentinrgt/feedwatch",
+    "description": "FeedWatch is an open-source, self-hosted technology monitoring tool to aggregate RSS feeds, automate content collection and centralize your technology watch with customizable sources.",
     "type": "project",
-    "license": "proprietary",
+    "homepage": "https://github.com/ValentinRgt/feedwatch",
+    "keywords": [
+        "feedwatch",
+        "rss",
+        "rss-reader",
+        "rss-aggregator",
+        "feed",
+        "feed-reader",
+        "feed-aggregator",
+        "technology-watch",
+        "tech-watch",
+        "monitoring",
+        "self-hosted",
+        "symfony",
+        "php"
+    ],
+    "license": "GPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "Valentin RAGOT",
+            "homepage": "https://github.com/ValentinRgt"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/ValentinRgt/feedwatch/issues",
+        "source": "https://github.com/ValentinRgt/feedwatch"
+    },
     "minimum-stability": "stable",
     "prefer-stable": true,
     "version": "0.0.0-dev",

@@ -1,2 +1,58 @@
-# feedwatch
-FeedWatch is an open-source, self-hosted technology monitoring tool. Aggregate RSS feeds, automate content collection, track trends, and centralize your technology monitoring with customizable sources.
+# FeedWatch
+
+[![Release workflow](https://img.shields.io/github/actions/workflow/status/ValentinRgt/feedwatch/release.yml?style=flat&logo=githubactions&logoColor=white&label=build)](https://github.com/ValentinRgt/feedwatch/actions/workflows/release.yml)
+[![GitHub stars](https://img.shields.io/github/stars/ValentinRgt/feedwatch?style=flat&logo=github)](https://github.com/ValentinRgt/feedwatch/stargazers)
+[![Latest release](https://img.shields.io/github/v/release/ValentinRgt/feedwatch?style=flat&logo=github)](https://github.com/ValentinRgt/feedwatch/releases/latest)
+[![Open issues](https://img.shields.io/github/issues/ValentinRgt/feedwatch?style=flat&logo=github)](https://github.com/ValentinRgt/feedwatch/issues)
+[![Last commit](https://img.shields.io/github/last-commit/ValentinRgt/feedwatch?style=flat&logo=github)](https://github.com/ValentinRgt/feedwatch/commits)
+[![License](https://img.shields.io/github/license/ValentinRgt/feedwatch?style=flat)](LICENSE)
+
+[![PHP](https://img.shields.io/badge/PHP-8.4+-777BB4?style=flat&logo=php&logoColor=white)](https://www.php.net/)
+[![Symfony](https://img.shields.io/badge/Symfony-7.4-000000?style=flat&logo=symfony&logoColor=white)](https://symfony.com/)
+[![Docker](https://img.shields.io/badge/ghcr.io-feedwatch-2496ED?style=flat&logo=docker&logoColor=white)](https://github.com/ValentinRgt/feedwatch/pkgs/container/feedwatch)
+
+**FeedWatch** is an open-source, self-hosted technology monitoring tool. Aggregate RSS feeds, automate content collection, track trends, and centralize your technology monitoring with customizable sources.
+
+## Getting Started
+
+FeedWatch is distributed as a Docker image. To run the application:
+
+```bash
+docker run -d --name feedwatch \
+  -p 80:80 \
+  -p 443:443 \
+  -v feedwatch_var:/app/var \
+  ghcr.io/valentinrgt/feedwatch:latest
+```
+
+Once the container is running, create a user to be able to log in and manage categories and sources:
+
+```bash
+docker exec -it feedwatch php bin/console app:user:create
+```
+
+You can then open the application in your browser and start adding categories and sources.
+
+## Features
+
+- **Source management** — Add, edit and remove the feeds you want to monitor, with configurable format (XML/RSS), status (active/inactive) and fetch periodicity (from every 15 minutes to monthly).
+- **Categories** — Organize your sources into categories and filter the feed accordingly.
+- **Automatic feed collection** — A background scheduler fetches each source on its own schedule, with change detection (checksums) to skip unchanged feeds and avoid duplicate articles.
+- **Aggregated feed** — Browse all collected articles in a single, paginated view, filterable by category.
+- **Self-hosted** — Runs anywhere with Docker (FrankenPHP + SQLite), no external service required.
+- **User authentication** — Registration, login and role-based access to the admin panel.
+
+> Built with Symfony 7.4 (PHP 8.4+), Doctrine ORM, Twig, Tailwind CSS and Symfony Messenger.
+
+## Contributing
+
+Contributions are welcome! FeedWatch is an open-source project and we'd love your help to make it better.
+
+- **Found a bug or have an idea?** [Open an issue](../../issues) to report a problem or suggest a new feature.
+- **Want to contribute code?** Fork the repository, create a branch for your change, and open a [pull request](../../pulls).
+
+When contributing, please describe your changes clearly and make sure the project's quality tools (PHP-CS-Fixer, PHP CodeSniffer, PHPStan, PHPMD) and tests pass before submitting.
+
+## License
+
+FeedWatch is licensed under the **GNU General Public License v3.0 or later (GPL-3.0-or-later)**. See the [LICENSE](LICENSE) file for the full text.
