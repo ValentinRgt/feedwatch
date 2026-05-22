@@ -57,6 +57,8 @@ final class SourceController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var Source $source */
             $source = $form->getData();
+            $source->setChecksum(null);
+            $source->setLastFetchedAt(null);
             $sourceRepository->save($source, true);
 
             $this->addFlash('success', $translator->trans('pages.admin.sources.edit.success'));

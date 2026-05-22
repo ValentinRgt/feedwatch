@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace App\Repository;
 
 use App\Entity\Source;
+use App\Enum\FormatEnum;
+use App\Enum\PeriodicityEnum;
+use App\Enum\StatusEnum;
+use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -44,5 +48,38 @@ class SourceRepository extends ServiceEntityRepository
         if ($flush) {
             $this->getEntityManager()->flush();
         }
+    }
+
+    /**
+     * @return Source[]
+     */
+    public function findDueSources(): array
+    {
+        $now = new DateTimeImmutable();
+
+        $qb = $this->createQueryBuilder('s')
+            ->where('s.status = :status')
+            ->setParameter('status', StatusEnum::ACTIVE);
+
+        $dueByPeriodicity = $qb->expr()->orX();
+
+        foreach (PeriodicityEnum::cases() as $periodicity) {
+            $key = $periodicity->value;
+
+            $dueByPeriodicity->add($qb->expr()->andX(
+                $qb->expr()->eq('s.periodicity', ':periodicity_' . $key),
+                $qb->expr()->orX(
+                    $qb->expr()->isNull('s.lastFetchedAt'),
+                    $qb->expr()->lte('s.lastFetchedAt', ':due_' . $key),
+                ),
+            ));
+
+            $qb->setParameter('periodicity_' . $key, $periodicity)
+                ->setParameter('due_' . $key, $now->sub($periodicity->interval()));
+        }
+
+        $qb->andWhere($dueByPeriodicity);
+
+        return $qb->getQuery()->getResult();
     }
 }

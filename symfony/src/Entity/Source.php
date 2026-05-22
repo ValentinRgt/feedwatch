@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Enum\FormatEnum;
+use App\Enum\PeriodicityEnum;
 use App\Enum\StatusEnum;
 use App\Repository\SourceRepository;
 use App\Trait\DateTimeImmutableTrait;
+use DateTimeImmutable;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -40,6 +42,12 @@ class Source
 
     #[ORM\Column(type: Types::STRING, length: 100, enumType: StatusEnum::class)]
     private ?StatusEnum $status = null;
+
+    #[ORM\Column(type: Types::STRING, length: 100, enumType: PeriodicityEnum::class)]
+    private ?PeriodicityEnum $periodicity = null;
+
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?DateTimeImmutable $lastFetchedAt = null;
 
     /**
      * @return int|null
@@ -96,10 +104,10 @@ class Source
     }
 
     /**
-     * @param string $checksum
+     * @param string|null $checksum
      * @return $this
      */
-    public function setChecksum(string $checksum): static
+    public function setChecksum(?string $checksum): static
     {
         $this->checksum = $checksum;
 
@@ -157,5 +165,41 @@ class Source
     public function setStatus(StatusEnum $status): void
     {
         $this->status = $status;
+    }
+
+    /**
+     * @return PeriodicityEnum|null
+     */
+    public function getPeriodicity(): ?PeriodicityEnum
+    {
+        return $this->periodicity;
+    }
+
+    /**
+     * @param PeriodicityEnum $periodicity
+     * @return void
+     */
+    public function setPeriodicity(PeriodicityEnum $periodicity): void
+    {
+        $this->periodicity = $periodicity;
+    }
+
+    /**
+     * @return DateTimeImmutable|null
+     */
+    public function getLastFetchedAt(): ?DateTimeImmutable
+    {
+        return $this->lastFetchedAt;
+    }
+
+    /**
+     * @param DateTimeImmutable|null $lastFetchedAt
+     * @return $this
+     */
+    public function setLastFetchedAt(?DateTimeImmutable $lastFetchedAt): static
+    {
+        $this->lastFetchedAt = $lastFetchedAt;
+
+        return $this;
     }
 }

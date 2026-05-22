@@ -7,6 +7,7 @@ namespace App\Form;
 use App\Entity\Category;
 use App\Entity\Source;
 use App\Enum\FormatEnum;
+use App\Enum\PeriodicityEnum;
 use App\Enum\StatusEnum;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -71,9 +72,16 @@ class SourceType extends AbstractType
             ])
             ->add('status', EnumType::class, [
                 'class' => StatusEnum::class,
-                'row_attr' => [
-                    'class' => 'col-span-2'
+                'label_attr' => [
+                    'class' => 'block mb-2 text-md font-medium text-gray-900'
                 ],
+                'attr' => [
+                    'class' => 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500'
+                    . 'focus:border-blue-500 block w-full p-2.5'
+                ]
+            ])
+            ->add('periodicity', EnumType::class, [
+                'class' => PeriodicityEnum::class,
                 'label_attr' => [
                     'class' => 'block mb-2 text-md font-medium text-gray-900'
                 ],

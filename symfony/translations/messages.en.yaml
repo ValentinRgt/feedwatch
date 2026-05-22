@@ -47,6 +47,16 @@ format:
   xml: "XML"
   html: "HTML"
 
+periodicity:
+  every_15_minutes: "Every 15 minutes"
+  every_30_minutes: "Every 30 minutes"
+  hourly: "Every hour"
+  every_6_hours: "Every 6 hours"
+  every_12_hours: "Every 12 hours"
+  daily: "Daily"
+  weekly: "Weekly"
+  monthly: "Monthly"
+
 pages:
   index:
     title: "FeedWatch :: Home"
@@ -105,8 +115,13 @@ pages:
           format: "Format"
           status: "Status"
           created_at: "Created At"
+          last_fetched_at: "Last Fetched At"
           updated_at: "Updated At"
           actions: "Actions"
         modal:
           title: "New source"
           submit: "Create"
+      edit:
+        title: "FeedWatch :: Edit source %name%"
+        success: "Source updated successfully!"
+        submit: "Update"

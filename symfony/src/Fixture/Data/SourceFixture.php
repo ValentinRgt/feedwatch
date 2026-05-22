@@ -7,6 +7,7 @@ namespace App\Fixture\Data;
 use App\Entity\Category;
 use App\Entity\Source;
 use App\Enum\FormatEnum;
+use App\Enum\PeriodicityEnum;
 use App\Enum\StatusEnum;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;
@@ -25,6 +26,7 @@ class SourceFixture extends Fixture implements FixtureGroupInterface, DependentF
         $source->setFormat(FormatEnum::XML);
         $source->setCategory($this->getReference(CategoryFixture::CATEGORY_REFERENCE . '0', Category::class));
         $source->setStatus(StatusEnum::ACTIVE);
+        $source->setPeriodicity(PeriodicityEnum::EVERY_15_MINUTES);
         $this->addReference(self::SOURCE_REFERENCE . '0', $source);
         $manager->persist($source);
 
@@ -32,6 +34,7 @@ class SourceFixture extends Fixture implements FixtureGroupInterface, DependentF
         $source->setName('Korben Info - Cybersecurity');
         $source->setUrl('https://korben.info/categories/cybersecurite/');
         $source->setFormat(FormatEnum::HTML);
+        $source->setPeriodicity(PeriodicityEnum::EVERY_15_MINUTES);
         $source->setCategory($this->getReference(CategoryFixture::CATEGORY_REFERENCE . '1', Category::class));
         $source->setStatus(StatusEnum::ACTIVE);
         $this->addReference(self::SOURCE_REFERENCE . 'cybersecurite', $source);
@@ -41,6 +44,7 @@ class SourceFixture extends Fixture implements FixtureGroupInterface, DependentF
         $source->setName('Invalid Source');
         $source->setUrl('https://invaliddomain.com/feed');
         $source->setFormat(FormatEnum::HTML);
+        $source->setPeriodicity(PeriodicityEnum::DAILY);
         $source->setStatus(StatusEnum::INACTIVE);
         $manager->persist($source);
 

@@ -10,6 +10,7 @@ services:
       - caddy_data:/data
       - caddy_config:/config
       - ./symfony:/app
+      - .docker/php/php.ini:/usr/local/etc/php/conf.d/feedwatch.ini:ro
     environment:
       APP_ENV: "dev"
       DATABASE_URL: "mysql://feedwatch:feedwatch@mariadb:3306/feedwatch?serverVersion=mariadb-11.0.0"
