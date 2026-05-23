@@ -6,9 +6,6 @@ namespace App\Twig;
 
 use Composer\InstalledVersions;
 
-/**
- * @SuppressWarnings("PHPMD.StaticAccess")
- */
 class ComposerVersion
 {
     public function getVersion(): string

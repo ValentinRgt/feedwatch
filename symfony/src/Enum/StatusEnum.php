@@ -11,6 +11,7 @@ enum StatusEnum: string implements TranslatableInterface
 {
     case ACTIVE = 'active';
     case INACTIVE = 'inactive';
+    case IN_ERROR = 'in_error';
 
     public function trans(TranslatorInterface $translator, ?string $locale = null): string
     {

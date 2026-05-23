@@ -7,6 +7,10 @@ namespace App\Abstract;
 use App\DTO\ArticleDTO;
 use DateTimeImmutable;
 use Exception;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 abstract class AbstractFeedReader
@@ -19,6 +23,10 @@ abstract class AbstractFeedReader
     /**
      * @param string $url
      * @return string
+     * @throws TransportExceptionInterface
+     * @throws ClientExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
      */
     protected function fetch(string $url): string
     {

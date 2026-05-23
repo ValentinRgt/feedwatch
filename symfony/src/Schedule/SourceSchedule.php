@@ -21,7 +21,6 @@ final readonly class SourceSchedule implements ScheduleProviderInterface
 
     /**
      * @return Schedule
-     * @SuppressWarnings("PHPMD.StaticAccess")
      */
     public function getSchedule(): Schedule
     {

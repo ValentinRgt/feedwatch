@@ -24,7 +24,6 @@ class ArticleRepository extends ServiceEntityRepository
      * @param Article $article
      * @param bool $flush
      * @return void
-     * @SuppressWarnings("PHPMD.BooleanArgumentFlag")
      */
     public function save(Article $article, bool $flush = false): void
     {
@@ -38,7 +37,6 @@ class ArticleRepository extends ServiceEntityRepository
      * @param Article $article
      * @param bool $flush
      * @return void
-     * @SuppressWarnings("PHPMD.BooleanArgumentFlag")
      */
     public function remove(Article $article, bool $flush = false): void
     {

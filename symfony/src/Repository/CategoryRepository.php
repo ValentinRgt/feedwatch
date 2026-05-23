@@ -23,7 +23,6 @@ class CategoryRepository extends ServiceEntityRepository
      * @param Category $category
      * @param bool $flush
      * @return void
-     * @SuppressWarnings("PHPMD.BooleanArgumentFlag")
      */
     public function save(Category $category, bool $flush = false): void
     {
@@ -37,7 +36,6 @@ class CategoryRepository extends ServiceEntityRepository
      * @param Category $category
      * @param bool $flush
      * @return void
-     * @SuppressWarnings("PHPMD.BooleanArgumentFlag")
      */
     public function remove(Category $category, bool $flush = false): void
     {
@@ -49,7 +47,6 @@ class CategoryRepository extends ServiceEntityRepository
 
     /**
      * @return array<int, array{id: int, name: string, articleCount: int}>
-     * @SuppressWarnings("PHPMD.StaticAccess")
      */
     public function findMostActive(int $days, int $limit): array
     {

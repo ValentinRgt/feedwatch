@@ -98,7 +98,7 @@
         </thead>
         <tbody data-controller="row-actions">
             {% for source in sources %}
-                <tr class="bg-white border-b border-gray-200">
+                <tr class="{% if source.status == constant('App\\Enum\\StatusEnum::IN_ERROR') %}bg-red-200{% else %}bg-white{% endif %} border-b border-gray-200">
                     <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                         {{ source.name }}
                     </th>

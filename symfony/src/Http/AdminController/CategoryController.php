@@ -50,19 +50,9 @@ final class CategoryController extends AbstractController
     public function edit(
         Category $category,
         CategoryRepository $categoryRepository,
-        SourceRepository $sourceRepository,
         Request $request,
-        TranslatorInterface $translator,
-        PaginatorInterface $paginator
+        TranslatorInterface $translator
     ): Response {
-        $sources = $paginator->paginate(
-            $sourceRepository->createQueryBuilder('s')
-                ->where('s.category = :category')->setParameter('category', $category)
-                ->orderBy('s.id')->getQuery(),
-            $request->query->getInt('page', 1),
-            20
-        );
-
         $form = $this->createForm(CategoryType::class, $category);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
@@ -78,7 +68,6 @@ final class CategoryController extends AbstractController
         return $this->render('admin/category/edit.html.twig', [
             'category' => $category,
             'form' => $form->createView(),
-            'sources' => $sources
         ]);
     }
 
