@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Controller\Admin;
+namespace App\Http\AdminController;
 
 use App\Entity\Source;
 use App\Form\SourceType;
@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-#[Route('/admin/source', name: 'app.admin.source.')]
+#[Route('/source', name: 'app.admin.source.')]
 final class SourceController extends AbstractController
 {
     #[Route('', name: 'index')]

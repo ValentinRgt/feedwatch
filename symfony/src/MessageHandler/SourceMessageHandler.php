@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\MessageHandler;
 
-use App\Interface\FeedReaderInterface;
 use App\Message\SourceMessage;
 use App\Repository\SourceRepository;
 use App\Service\ArticleService;

@@ -82,4 +82,24 @@ class SourceRepository extends ServiceEntityRepository
 
         return $qb->getQuery()->getResult();
     }
+
+    /**
+     * @return array<int, array{id: int, name: string, articleCount: int}>
+     * @SuppressWarnings("PHPMD.StaticAccess")
+     */
+    public function findMostActive(int $days, int $limit): array
+    {
+        $since = (new DateTimeImmutable())->modify('-' . $days . ' days');
+
+        return $this->createQueryBuilder('s')
+            ->select('s.id', 's.name', 'COUNT(a.id) AS articleCount')
+            ->innerJoin('s.articles', 'a')
+            ->where('a.createdAt >= :since')
+            ->setParameter('since', $since)
+            ->groupBy('s.id')
+            ->orderBy('articleCount', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getArrayResult();
+    }
 }

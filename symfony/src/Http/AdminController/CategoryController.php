@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Controller\Admin;
+namespace App\Http\AdminController;
 
 use App\Entity\Category;
 use App\Form\CategoryType;
@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-#[Route('/admin/category', name: 'app.admin.category.')]
+#[Route('/category', name: 'app.admin.category.')]
 final class CategoryController extends AbstractController
 {
     #[Route('', name: 'index')]
@@ -89,7 +89,9 @@ final class CategoryController extends AbstractController
         CategoryRepository $categoryRepository
     ): Response {
         if ($this->isCsrfTokenValid('delete' . $category->getId(), (string) $request->getPayload()->get('_token'))) {
-            $category->getSources()->clear();
+            foreach ($category->getSources()->toArray() as $source) {
+                $category->removeSource($source);
+            }
             $categoryRepository->remove($category, true);
         }
 
