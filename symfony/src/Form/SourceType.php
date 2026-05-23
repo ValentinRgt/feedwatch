@@ -25,7 +25,6 @@ class SourceType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        /** @var Source $source */
         $source = $builder->getData();
         if ($source instanceof Source && $source->getStatus() === StatusEnum::IN_ERROR) {
             $source->setStatus(StatusEnum::INACTIVE);
@@ -85,11 +84,9 @@ class SourceType extends AbstractType
                     'class' => 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500'
                     . 'focus:border-blue-500 block w-full p-2.5'
                 ],
-                'choices' => array_values(
-                    array_filter(
-                        StatusEnum::cases(),
-                        fn (StatusEnum $case): bool => $case !== StatusEnum::IN_ERROR
-                    )
+                'choices' => array_filter(
+                    StatusEnum::cases(),
+                    fn (StatusEnum $case): bool => $case !== StatusEnum::IN_ERROR
                 ),
             ])
             ->add('periodicity', EnumType::class, [

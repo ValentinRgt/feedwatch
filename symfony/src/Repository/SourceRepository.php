@@ -7,7 +7,6 @@ namespace App\Repository;
 use App\Entity\Source;
 use App\Enum\PeriodicityEnum;
 use App\Enum\StatusEnum;
-use DateInvalidOperationException;
 use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;

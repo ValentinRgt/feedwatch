@@ -8,9 +8,9 @@ use App\Entity\SourceError;
 use App\Repository\SourceErrorRepository;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\ValueResolver;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/monitoring', name: 'app.admin.monitoring.')]
@@ -21,6 +21,7 @@ final class MonitoringController extends AbstractController
         SourceErrorRepository $sourceErrorRepository,
         PaginatorInterface $paginator,
         Request $request,
+        #[ValueResolver('pageSize')] int $pageSize,
     ): Response {
         $query = $sourceErrorRepository
             ->createQueryBuilder('e')
@@ -32,11 +33,11 @@ final class MonitoringController extends AbstractController
         $errors = $paginator->paginate(
             $query,
             $request->query->getInt('page', 1),
-            20,
+            $pageSize,
         );
 
         return $this->render('admin/monitoring/index.html.twig', [
-            'errors' => $errors
+            'errors' => $errors,
         ]);
     }
 

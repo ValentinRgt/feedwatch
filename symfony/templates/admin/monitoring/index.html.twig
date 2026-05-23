@@ -6,6 +6,7 @@
     <section class="p-6 bg-white rounded mb-3">
         <div class="flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between">
             <h1 class="text-xl font-bold">{{ 'pages.admin.monitoring.index.table.title'|trans }}</h1>
+            {% include '@components/_page_size.html.twig' %}
         </div>
     </section>
 
@@ -14,76 +15,78 @@
     <div class="overflow-x-auto shadow-md rounded-lg">
         <table class="w-full text-sm text-left rtl:text-right text-gray-500">
             <thead class="text-xs text-white uppercase bg-gray-800">
-                <tr>
-                    <th scope="col" class="px-6 py-3">
-                        {{ 'pages.admin.monitoring.index.table.source'|trans }}
-                    </th>
-                    <th scope="col" class="px-6 py-3">
-                        {{ 'pages.admin.monitoring.index.table.exception'|trans }}
-                    </th>
-                    <th scope="col" class="px-6 py-3">
-                        {{ 'pages.admin.monitoring.index.table.message'|trans }}
-                    </th>
-                    <th scope="col" class="px-6 py-3 whitespace-nowrap">
-                        {{ 'pages.admin.monitoring.index.table.occurred_at'|trans }}
-                    </th>
-                    <th scope="col" class="text-right px-6 py-3">
-                        {{ 'pages.admin.monitoring.index.table.actions'|trans }}
-                    </th>
-                </tr>
+            <tr>
+                <th scope="col" class="px-6 py-3">
+                    {{ 'pages.admin.monitoring.index.table.source'|trans }}
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    {{ 'pages.admin.monitoring.index.table.exception'|trans }}
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    {{ 'pages.admin.monitoring.index.table.message'|trans }}
+                </th>
+                <th scope="col" class="px-6 py-3 whitespace-nowrap">
+                    {{ 'pages.admin.monitoring.index.table.occurred_at'|trans }}
+                </th>
+                <th scope="col" class="text-right px-6 py-3">
+                    {{ 'pages.admin.monitoring.index.table.actions'|trans }}
+                </th>
+            </tr>
             </thead>
             <tbody data-controller="row-actions">
-                {% for error in errors %}
-                    {% set issue_title = 'pages.admin.monitoring.index.report.title'|trans({ '%source%': error.source.name }) %}
-                    {% set issue_body = 'pages.admin.monitoring.index.report.body'|trans({
-                        '%source%': error.source.name,
-                        '%url%': error.source.url,
-                        '%format%': error.source.format.value,
-                        '%exception%': error.exceptionClass,
-                        '%message%': error.message,
-                        '%file%': error.file ?? '',
-                        '%line%': error.line ?? '',
-                        '%occurred_at%': error.createdAt|date('Y-m-d H:i:s')
-                    }) %}
-                    {% set issue_url = github_repo_url ~ '/issues/new?labels=bug,scheduler&title=' ~ issue_title|url_encode ~ '&body=' ~ issue_body|url_encode %}
-                    <tr class="bg-white border-b border-gray-200">
-                        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                            <a href="{{ path('app.admin.source.edit', { id: error.source.id }) }}" class="hover:underline">
-                                {{ error.source.name }}
+            {% for error in errors %}
+                {% set issue_title = 'pages.admin.monitoring.index.report.title'|trans({ '%source%': error.source.name }) %}
+                {% set issue_body = 'pages.admin.monitoring.index.report.body'|trans({
+                    '%source%': error.source.name,
+                    '%url%': error.source.url,
+                    '%format%': error.source.format.value,
+                    '%exception%': error.exceptionClass,
+                    '%message%': error.message,
+                    '%file%': error.file ?? '',
+                    '%line%': error.line ?? '',
+                    '%occurred_at%': error.createdAt|date('Y-m-d H:i:s')
+                }) %}
+                {% set issue_url = github_repo_url ~ '/issues/new?labels=bug,scheduler&title=' ~ issue_title|url_encode ~ '&body=' ~ issue_body|url_encode %}
+                <tr class="bg-white border-b border-gray-200">
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                        <a href="{{ path('app.admin.source.edit', { id: error.source.id }) }}" class="hover:underline">
+                            {{ error.source.name }}
+                        </a>
+                    </th>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <code class="text-xs">{{ error.exceptionClass|split('\\')|last }}</code>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="line-clamp-2" title="{{ error.message }}">{{ error.message }}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        {{ error.createdAt|date }}
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center justify-end">
+                            <a href="{{ issue_url }}" target="_blank" rel="noopener noreferrer"
+                               class="px-4 py-2 cursor-pointer text-sm font-medium text-white bg-gray-800 hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 border border-gray-200 rounded-s-lg">
+                                {{ ux_icon('bi:github') }}
                             </a>
-                        </th>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <code class="text-xs">{{ error.exceptionClass|split('\\')|last }}</code>
-                        </td>
-                        <td class="px-6 py-4">
-                            <span class="line-clamp-2" title="{{ error.message }}">{{ error.message }}</span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            {{ error.createdAt|date }}
-                        </td>
-                        <td class="px-6 py-4">
-                            <div class="flex items-center justify-end">
-                                <a href="{{ issue_url }}" target="_blank" rel="noopener noreferrer" class="px-4 py-2 cursor-pointer text-sm font-medium text-white bg-gray-800 hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 border border-gray-200 rounded-s-lg">
-                                    {{ ux_icon('bi:github') }}
-                                </a>
-                                <form
-                                    method="post"
-                                    action="{{ path('app.admin.monitoring.delete', { id: error.id }) }}"
-                                    data-action="row-actions#confirm"
-                                    data-row-actions-title-param="{{ 'pages.admin.monitoring.index.delete.confirm.title'|trans }}"
-                                    data-row-actions-text-param="{{ 'pages.admin.monitoring.index.delete.confirm.text'|trans }}"
-                                    data-row-actions-confirm-param="{{ 'pages.admin.monitoring.index.delete.confirm.confirm'|trans }}"
-                                    data-row-actions-cancel-param="{{ 'pages.admin.monitoring.index.delete.confirm.cancel'|trans }}"
-                                >
-                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ error.id) }}">
-                                    <button type="submit" class="px-4 py-2 cursor-pointer text-sm font-medium text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 border border-gray-200 rounded-e-lg">
-                                        {{ ux_icon('bi:trash') }}
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                {% endfor %}
+                            <form
+                                method="post"
+                                action="{{ path('app.admin.monitoring.delete', { id: error.id }) }}"
+                                data-action="row-actions#confirm"
+                                data-row-actions-title-param="{{ 'pages.admin.monitoring.index.delete.confirm.title'|trans }}"
+                                data-row-actions-text-param="{{ 'pages.admin.monitoring.index.delete.confirm.text'|trans }}"
+                                data-row-actions-confirm-param="{{ 'pages.admin.monitoring.index.delete.confirm.confirm'|trans }}"
+                                data-row-actions-cancel-param="{{ 'pages.admin.monitoring.index.delete.confirm.cancel'|trans }}"
+                            >
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ error.id) }}">
+                                <button type="submit"
+                                        class="px-4 py-2 cursor-pointer text-sm font-medium text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 rounded-e-lg">
+                                    {{ ux_icon('bi:trash') }}
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
             </tbody>
         </table>
     </div>

@@ -6,24 +6,27 @@
     <div class="text-sm font-medium text-center text-gray-500 border-b border-gray-200" data-controller="tabs-carousel">
         <div class="flex items-center">
             <button type="button"
-                data-tabs-carousel-target="prev"
-                data-action="tabs-carousel#prev"
-                aria-label="{{ 'pagination.previous'|trans }}"
-                class="hidden shrink-0 p-2 me-1 text-gray-500 rounded-full hover:bg-gray-100"
+                    data-tabs-carousel-target="prev"
+                    data-action="tabs-carousel#prev"
+                    aria-label="{{ 'pagination.previous'|trans }}"
+                    class="hidden shrink-0 p-2 me-1 text-gray-500 rounded-full hover:bg-gray-100"
             >
-                <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                     viewBox="0 0 24 24">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M15 19l-7-7 7-7"/>
                 </svg>
             </button>
 
-            <div data-tabs-carousel-target="scroller" class="flex-1 overflow-x-auto scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+            <div data-tabs-carousel-target="scroller"
+                 class="flex-1 overflow-x-auto scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                 {% set tab_active = 'inline-block p-4 text-blue-600 border-b-2 border-blue-600 rounded-t-lg active' %}
                 {% set tab_inactive = 'inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300' %}
                 <ul class="flex flex-nowrap -mb-px">
                     <li class="me-2 shrink-0">
                         <a href="{{ path('app.home') }}"
-                            class="{{ selectedCategory is null ? tab_active : tab_inactive }}"
-                            {% if selectedCategory is null %}aria-current="page"{% endif %}
+                           class="{{ selectedCategory is null ? tab_active : tab_inactive }}"
+                           {% if selectedCategory is null %}aria-current="page"{% endif %}
                         >
                             {{ 'pages.index.all_feeds'|trans }}
                         </a>
@@ -32,8 +35,8 @@
                         {% set is_selected = selectedCategory and selectedCategory.id == category.id %}
                         <li class="me-2 shrink-0">
                             <a href="{{ path('app.home', { category: category.id }) }}"
-                                class="{{ is_selected ? tab_active : tab_inactive }}"
-                                {% if is_selected %}aria-current="page"{% endif %}
+                               class="{{ is_selected ? tab_active : tab_inactive }}"
+                               {% if is_selected %}aria-current="page"{% endif %}
                             >
                                 {{ category.name }}
                             </a>
@@ -43,13 +46,15 @@
             </div>
 
             <button type="button"
-                data-tabs-carousel-target="next"
-                data-action="tabs-carousel#next"
-                aria-label="{{ 'pagination.next'|trans }}"
-                class="hidden shrink-0 p-2 ms-1 text-gray-500 rounded-full hover:bg-gray-100"
+                    data-tabs-carousel-target="next"
+                    data-action="tabs-carousel#next"
+                    aria-label="{{ 'pagination.next'|trans }}"
+                    class="hidden shrink-0 p-2 ms-1 text-gray-500 rounded-full hover:bg-gray-100"
             >
-                <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                     viewBox="0 0 24 24">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M9 5l7 7-7 7"/>
                 </svg>
             </button>
         </div>
@@ -70,9 +75,11 @@
                         <span>{{ published|date }}</span>
                     </p>
                     <div>
-                        <span class="bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm">{{ feed.source.name }}</span>
+                        <span
+                            class="bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm">{{ feed.source.name }}</span>
                         {% if feed.source.category is not defined %}
-                            <span class="bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm">{{ feed.source.category.name }}</span>
+                            <span
+                                class="bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm">{{ feed.source.category.name }}</span>
                         {% endif %}
                     </div>
                 </article>
@@ -88,8 +95,10 @@
         {% endif %}
     {% else %}
         <div class="flex items-center p-4 text-sm text-blue-800 rounded-lg bg-blue-50" role="alert">
-            <svg class="shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+            <svg class="shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                 fill="currentColor" viewBox="0 0 20 20">
+                <path
+                    d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
             </svg>
             <span class="sr-only">Info</span>
             <div>
