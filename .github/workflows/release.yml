@@ -46,7 +46,6 @@ jobs:
             docker.io/${{ vars.DOCKER_HUB_USERNAME }}/feedwatch
           tags: |
             type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
             type=raw,value=latest
           labels: |
             org.opencontainers.image.title=FeedWatch

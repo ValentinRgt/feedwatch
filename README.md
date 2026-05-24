@@ -10,6 +10,7 @@
 [![PHP](https://img.shields.io/badge/PHP-8.4+-777BB4?style=flat&logo=php&logoColor=white)](https://www.php.net/)
 [![Symfony](https://img.shields.io/badge/Symfony-7.4-000000?style=flat&logo=symfony&logoColor=white)](https://symfony.com/)
 [![Docker](https://img.shields.io/badge/ghcr.io-feedwatch-2496ED?style=flat&logo=docker&logoColor=white)](https://github.com/ValentinRgt/feedwatch/pkgs/container/feedwatch)
+[![Docker Hub](https://img.shields.io/docker/v/valentinrgt/feedwatch?style=flat&logo=docker&logoColor=white&label=Docker%20Hub)](https://hub.docker.com/r/valentinrgt/feedwatch)
 
 **FeedWatch** is an open-source, self-hosted technology monitoring tool. Aggregate RSS feeds, automate content collection, track trends, and centralize your technology monitoring with customizable sources.
 
@@ -22,7 +23,7 @@ docker run -d --name feedwatch \
   -p 80:80 \
   -p 443:443 \
   -v feedwatch_var:/app/var \
-  ghcr.io/valentinrgt/feedwatch:latest
+  valentinrgt/feedwatch:latest
 ```
 
 Once the container is running, create a user to be able to log in and manage categories and sources:
