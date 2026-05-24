@@ -11,6 +11,8 @@
 [![Symfony](https://img.shields.io/badge/Symfony-7.4-000000?style=flat&logo=symfony&logoColor=white)](https://symfony.com/)
 [![Docker](https://img.shields.io/badge/ghcr.io-feedwatch-2496ED?style=flat&logo=docker&logoColor=white)](https://github.com/ValentinRgt/feedwatch/pkgs/container/feedwatch)
 [![Docker Hub](https://img.shields.io/docker/v/valentinrgt/feedwatch?style=flat&logo=docker&logoColor=white&label=Docker%20Hub)](https://hub.docker.com/r/valentinrgt/feedwatch)
+[![Docker Pulls](https://img.shields.io/docker/pulls/valentinrgt/feedwatch?style=flat&logo=docker&logoColor=white)](https://hub.docker.com/r/valentinrgt/feedwatch)
+[![Docker Image Size](https://img.shields.io/docker/image-size/valentinrgt/feedwatch?style=flat&logo=docker&logoColor=white)](https://hub.docker.com/r/valentinrgt/feedwatch)
 
 **FeedWatch** is an open-source, self-hosted technology monitoring tool. Aggregate RSS feeds, automate content collection, track trends, and centralize your technology monitoring with customizable sources.
 

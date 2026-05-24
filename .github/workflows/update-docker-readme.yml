@@ -20,5 +20,5 @@ jobs:
           username: ${{ vars.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
           repository: ${{ vars.DOCKER_HUB_USERNAME }}/feedwatch
-          short-description: ${{ github.event.repository.description }}
+          short-description: Self-hosted technology monitoring with RSS feeds, content aggregation and trend tracking
           readme-filepath: ./README.md
