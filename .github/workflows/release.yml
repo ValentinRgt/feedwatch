@@ -50,7 +50,7 @@ jobs:
             type=raw,value=latest
           labels: |
             org.opencontainers.image.title=FeedWatch
-            org.opencontainers.image.description=Feed aggregation and management platform
+            org.opencontainers.image.description=${{ github.event.repository.description }}
             org.opencontainers.image.url=https://github.com/${{ github.repository }}
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.vendor=FeedWatch Contributors
