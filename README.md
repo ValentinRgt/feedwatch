@@ -36,6 +36,7 @@ You can then open the application in your browser and start adding categories an
 ## Features
 
 - **Source management** — Add, edit and remove the feeds you want to monitor, with configurable format (XML/RSS), status (active/inactive) and fetch periodicity (from every 15 minutes to monthly).
+- **Source monitoring** — Track source health with error detection, status monitoring, and historical fetch records to identify problematic or unreachable feeds.
 - **Categories** — Organize your sources into categories and filter the feed accordingly.
 - **Automatic feed collection** — A background scheduler fetches each source on its own schedule, with change detection (checksums) to skip unchanged feeds and avoid duplicate articles.
 - **Aggregated feed** — Browse all collected articles in a single, paginated view, filterable by category.
