@@ -11,6 +11,12 @@ modules:
             curl:
                 CURLOPT_SSL_VERIFYPEER: false
                 CURLOPT_SSL_VERIFYHOST: 0
+        - Symfony:
+            app_path: 'src'
+            environment: 'test'
+        - Doctrine:
+            depends: Symfony
+            cleanup: true
 # Add Codeception\Step\Retry trait to AcceptanceTester to enable retries
 step_decorators:
     - Codeception\Step\ConditionalAssertion

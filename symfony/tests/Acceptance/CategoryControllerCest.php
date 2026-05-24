@@ -4,12 +4,21 @@ declare(strict_types=1);
 
 namespace App\Tests\Acceptance;
 
+use App\Fixture\Test\CategoryFixture;
 use App\Fixture\Test\UserFixture;
 use App\Tests\Support\AcceptanceTester;
 use Codeception\Util\HttpCode;
 
 class CategoryControllerCest
 {
+    public function _before(AcceptanceTester $I): void
+    {
+        $I->loadFixtures([
+            $I->grabService(UserFixture::class),
+            $I->grabService(CategoryFixture::class),
+        ]);
+    }
+
     /**
      * An anonymous visitor is redirected to the login page.
      * @param AcceptanceTester $I
@@ -56,6 +65,10 @@ class CategoryControllerCest
     /**
      * Full round-trip: an admin creates a category through the form and then
      * removes it, leaving the (persistent) dev database unchanged.
+     *
+     * The dev DB is seeded with 10 categories — exactly the default page size —
+     * so the newly created entry lands on page 2. The test asks for a larger
+     * page so a single listing view contains every category.
      * @param AcceptanceTester $I
      * @return void
      */
@@ -63,12 +76,12 @@ class CategoryControllerCest
     {
         $I->loginAsAUser(UserFixture::ADMIN_EMAIL);
 
-        $I->amOnPage('/admin/category');
+        $I->amOnPage('/admin/category?pageSize=50');
         $I->submitForm('form.space-y-5', [
             'category[name]' => 'Acceptance E2E Category',
         ]);
 
-        $I->seeInCurrentUrl('/admin/category');
+        $I->amOnPage('/admin/category?pageSize=50');
         $I->see('Acceptance E2E Category');
 
         // Clean up so the dev DB stays in its seeded state.
@@ -78,7 +91,7 @@ class CategoryControllerCest
         );
         $I->submitForm('form[action="' . $deleteAction . '"]', []);
 
-        $I->seeInCurrentUrl('/admin/category');
+        $I->amOnPage('/admin/category?pageSize=50');
         $I->dontSee('Acceptance E2E Category');
     }
 

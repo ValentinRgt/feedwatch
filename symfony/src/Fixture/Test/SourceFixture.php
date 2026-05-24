@@ -40,6 +40,15 @@ class SourceFixture extends Fixture implements FixtureGroupInterface, DependentF
         $this->addReference(self::SOURCE_REFERENCE . '1', $second);
         $manager->persist($second);
 
+        $invalid = new Source();
+        $invalid->setName('Invalid Source');
+        $invalid->setUrl('https://invaliddomain.com/feed');
+        $invalid->setFormat(FormatEnum::HTML);
+        $invalid->setStatus(StatusEnum::INACTIVE);
+        $invalid->setPeriodicity(PeriodicityEnum::DAILY);
+        $this->addReference(self::SOURCE_REFERENCE . 'invalid', $invalid);
+        $manager->persist($invalid);
+
         $manager->flush();
     }
 

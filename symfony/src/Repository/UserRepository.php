@@ -40,7 +40,6 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
      * @param User $user
      * @param bool $flush
      * @return void
-     * @SuppressWarnings("PHPMD.BooleanArgumentFlag")
      */
     public function save(User $user, bool $flush = false): void
     {
@@ -54,7 +53,6 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
      * @param User $user
      * @param bool $flush
      * @return void
-     * @SuppressWarnings("PHPMD.BooleanArgumentFlag")
      */
     public function remove(User $user, bool $flush = false): void
     {

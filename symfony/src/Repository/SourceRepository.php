@@ -10,6 +10,7 @@ use App\Enum\StatusEnum;
 use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Throwable;
 
 /**
  * @extends ServiceEntityRepository<Source>
@@ -25,7 +26,6 @@ class SourceRepository extends ServiceEntityRepository
      * @param Source $source
      * @param bool $flush
      * @return void
-     * @SuppressWarnings("PHPMD.BooleanArgumentFlag")
      */
     public function save(Source $source, bool $flush = false): void
     {
@@ -39,7 +39,6 @@ class SourceRepository extends ServiceEntityRepository
      * @param Source $source
      * @param bool $flush
      * @return void
-     * @SuppressWarnings("PHPMD.BooleanArgumentFlag")
      */
     public function remove(Source $source, bool $flush = false): void
     {
@@ -51,35 +50,57 @@ class SourceRepository extends ServiceEntityRepository
 
     /**
      * @return Source[]
-     * @SuppressWarnings("PHPMD.StaticAccess")
      */
     public function findDueSources(): array
     {
-        $now = new DateTimeImmutable();
+        try {
+            $now = new DateTimeImmutable();
 
-        $qb = $this->createQueryBuilder('s')
-            ->where('s.status = :status')
-            ->setParameter('status', StatusEnum::ACTIVE);
+            $qb = $this->createQueryBuilder('s')
+                ->where('s.status = :status')
+                ->setParameter('status', StatusEnum::ACTIVE);
 
-        $dueByPeriodicity = $qb->expr()->orX();
+            $dueByPeriodicity = $qb->expr()->orX();
 
-        foreach (PeriodicityEnum::cases() as $periodicity) {
-            $key = $periodicity->value;
+            foreach (PeriodicityEnum::cases() as $periodicity) {
+                $key = $periodicity->value;
 
-            $dueByPeriodicity->add($qb->expr()->andX(
-                $qb->expr()->eq('s.periodicity', ':periodicity_' . $key),
-                $qb->expr()->orX(
-                    $qb->expr()->isNull('s.lastFetchedAt'),
-                    $qb->expr()->lte('s.lastFetchedAt', ':due_' . $key),
-                ),
-            ));
+                $dueByPeriodicity->add($qb->expr()->andX(
+                    $qb->expr()->eq('s.periodicity', ':periodicity_' . $key),
+                    $qb->expr()->orX(
+                        $qb->expr()->isNull('s.lastFetchedAt'),
+                        $qb->expr()->lte('s.lastFetchedAt', ':due_' . $key),
+                    ),
+                ));
 
-            $qb->setParameter('periodicity_' . $key, $periodicity)
-                ->setParameter('due_' . $key, $now->sub($periodicity->interval()));
+                $qb->setParameter('periodicity_' . $key, $periodicity)
+                    ->setParameter('due_' . $key, $now->sub($periodicity->interval()));
+            }
+
+            $qb->andWhere($dueByPeriodicity);
+
+            return $qb->getQuery()->getResult();
+        } catch (Throwable $e) {
+            return [];
         }
+    }
 
-        $qb->andWhere($dueByPeriodicity);
+    /**
+     * @return array<int, array{id: int, name: string, articleCount: int}>
+     */
+    public function findMostActive(int $days, int $limit): array
+    {
+        $since = (new DateTimeImmutable())->modify('-' . $days . ' days');
 
-        return $qb->getQuery()->getResult();
+        return $this->createQueryBuilder('s')
+            ->select('s.id', 's.name', 'COUNT(a.id) AS articleCount')
+            ->innerJoin('s.articles', 'a')
+            ->where('a.createdAt >= :since')
+            ->setParameter('since', $since)
+            ->groupBy('s.id')
+            ->orderBy('articleCount', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getArrayResult();
     }
 }

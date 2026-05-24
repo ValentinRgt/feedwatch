@@ -2,32 +2,33 @@
 
 declare(strict_types=1);
 
-namespace App\Controller\Admin;
+namespace App\Http\AdminController;
 
 use App\Entity\Category;
 use App\Form\CategoryType;
 use App\Repository\CategoryRepository;
-use App\Repository\SourceRepository;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\ValueResolver;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-#[Route('/admin/category', name: 'app.admin.category.')]
+#[Route('/category', name: 'app.admin.category.')]
 final class CategoryController extends AbstractController
 {
     #[Route('', name: 'index')]
     public function index(
         CategoryRepository $categoryRepository,
         PaginatorInterface $paginator,
-        Request $request
+        Request $request,
+        #[ValueResolver('pageSize')] int $pageSize,
     ): Response {
         $categories = $paginator->paginate(
             $categoryRepository->createQueryBuilder('c')->orderBy('c.id')->getQuery(),
             $request->query->getInt('page', 1),
-            20
+            $pageSize
         );
 
         $form = $this->createForm(CategoryType::class);
@@ -50,19 +51,9 @@ final class CategoryController extends AbstractController
     public function edit(
         Category $category,
         CategoryRepository $categoryRepository,
-        SourceRepository $sourceRepository,
         Request $request,
-        TranslatorInterface $translator,
-        PaginatorInterface $paginator
+        TranslatorInterface $translator
     ): Response {
-        $sources = $paginator->paginate(
-            $sourceRepository->createQueryBuilder('s')
-                ->where('s.category = :category')->setParameter('category', $category)
-                ->orderBy('s.id')->getQuery(),
-            $request->query->getInt('page', 1),
-            20
-        );
-
         $form = $this->createForm(CategoryType::class, $category);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
@@ -78,7 +69,6 @@ final class CategoryController extends AbstractController
         return $this->render('admin/category/edit.html.twig', [
             'category' => $category,
             'form' => $form->createView(),
-            'sources' => $sources
         ]);
     }
 
@@ -89,7 +79,9 @@ final class CategoryController extends AbstractController
         CategoryRepository $categoryRepository
     ): Response {
         if ($this->isCsrfTokenValid('delete' . $category->getId(), (string) $request->getPayload()->get('_token'))) {
-            $category->getSources()->clear();
+            foreach ($category->getSources()->toArray() as $source) {
+                $category->removeSource($source);
+            }
             $categoryRepository->remove($category, true);
         }
 

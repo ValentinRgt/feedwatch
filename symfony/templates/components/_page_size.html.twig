@@ -1,0 +1,11 @@
+<div class="flex items-center gap-2" {{ stimulus_controller('page-size-select') }}>
+    <select
+        id="page-size-select"
+        {{ stimulus_action('page-size-select', 'change') }}
+        class="text-sm border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-gray-300 px-3 py-1.5"
+    >
+        {% for option in items_per_page %}
+            <option value="{{ option }}" {{ option == app.request.query.get('pageSize', items_per_page|first) ? 'selected' : '' }}>{{ option }}</option>
+        {% endfor %}
+    </select>
+</div>

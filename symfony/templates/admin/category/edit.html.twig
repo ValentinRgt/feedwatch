@@ -1,67 +1,21 @@
-{% extends '@layouts/base.html.twig' %}
+{% extends '@layouts/administration.html.twig' %}
 
 {% block title %}{{ 'pages.admin.categories.edit.title'|trans({'%name%': category.name}) }}{% endblock %}
 
 {% block body %}
-<section class="p-6 bg-white rounded mb-3">
-    <div class="flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between">
-        <h1 class="text-xl font-bold">{{ category.name }}</h1>
-    </div>
-</section>
-
-<div class="p-4 bg-gray-100/60 rounded-lg shadow-md">
-    {{ form_start(form) }}
-        {{ form_row(form.name) }}
-        <button type="submit" class="w-full text-white bg-gray-800 hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none cursor-pointer">
-            {{ 'pages.admin.categories.edit.submit'|trans }}
-        </button>
-    {{ form_end(form) }}
-</div>
-
-<div class="overflow-x-auto shadow-md rounded-lg">
-    <table class="w-full text-sm text-left rtl:text-right text-gray-500">
-        <thead class="text-xs text-white uppercase bg-gray-800">
-            <tr>
-                <th scope="col" class="px-6 py-3">
-                    {{ 'pages.admin.sources.index.table.name'|trans }}
-                </th>
-                <th scope="col" class="px-6 py-3">
-                    {{ 'pages.admin.sources.index.table.created_at'|trans }}
-                </th>
-            </tr>
-        </thead>
-        <tbody data-controller="row-actions">
-            {% for source in sources %}
-                <tr class="bg-white border-b border-gray-200">
-                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                        {{ source.name }}
-                    </th>
-                    <td class="px-6 py-4">
-                        {{ source.createdAt|date }}
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-
-{% if sources|length is same as(0) %}
-    <div class="flex items-center p-4 mt-4 text-sm text-blue-800 rounded-lg bg-blue-50" role="alert">
-        <svg class="shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
-        </svg>
-        <span class="sr-only">Info</span>
-        <div>
-            {{ 'pages.admin.categories.edit.no_source_associated'|trans }}
-        </div>
-    </div>
-{% endif %}
-
-{% if sources.getTotalItemCount > sources.getItemNumberPerPage %}
-    <section id="pagination">
-        <div class="flex p-6 bg-white rounded justify-center">
-            {{ knp_pagination_render(sources) }}
+    <section class="p-6 bg-white rounded mb-3">
+        <div class="flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between">
+            <h1 class="text-xl font-bold">{{ category.name }}</h1>
         </div>
     </section>
-{% endif %}
+
+    <div class="p-4 bg-gray-100/60 rounded-lg shadow-md">
+        {{ form_start(form) }}
+        {{ form_row(form.name) }}
+        <button type="submit"
+                class="w-full text-white bg-gray-800 hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none cursor-pointer">
+            {{ 'pages.admin.categories.edit.submit'|trans }}
+        </button>
+        {{ form_end(form) }}
+    </div>
 {% endblock %}

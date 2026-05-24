@@ -6,6 +6,8 @@ twig:
         '%kernel.project_dir%/templates/components': components
     globals:
         composer_version: '@App\Twig\ComposerVersion'
+        github_repo_url: '%github_repo_url%'
+        items_per_page: '%items_per_page%'
 
 when@test:
     twig:

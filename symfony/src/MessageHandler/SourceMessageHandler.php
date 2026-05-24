@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\MessageHandler;
 
-use App\Interface\FeedReaderInterface;
 use App\Message\SourceMessage;
 use App\Repository\SourceRepository;
 use App\Service\ArticleService;
@@ -12,6 +11,7 @@ use App\Service\SourceService;
 use DateTimeImmutable;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Throwable;
 
 #[AsMessageHandler]
 final readonly class SourceMessageHandler
@@ -34,20 +34,28 @@ final readonly class SourceMessageHandler
         $sources = $this->sourceRepository->findDueSources();
 
         foreach ($sources as $source) {
-            $reader = $this->sourceService->getReader($source->getFormat());
+            try {
+                $reader = $this->sourceService->getReader($source->getFormat());
 
-            $content = $reader->read($source);
+                $content = $reader->read($source);
 
-            if (null === $content) {
-                $this->logger->info(sprintf('No new content for source "%s".', $source->getName()));
-                continue;
+                if (null === $content) {
+                    $this->logger->info(sprintf('No new content for source "%s".', $source->getName()));
+                    continue;
+                }
+
+                $source->setChecksum($content['checksum']);
+                $source->setLastFetchedAt(new DateTimeImmutable());
+                $this->sourceService->updateSource($source);
+
+                $this->articleService->createArticlesFromContent($content['items'], $source);
+            } catch (Throwable $throwable) {
+                $this->logger->error(
+                    sprintf('Failed to fetch source "%s": %s', $source->getName(), $throwable->getMessage()),
+                    ['exception' => $throwable, 'source_id' => $source->getId()],
+                );
+                $this->sourceService->recordFailure($source, $throwable);
             }
-
-            $source->setChecksum($content['checksum']);
-            $source->setLastFetchedAt(new DateTimeImmutable());
-            $this->sourceService->updateSource($source);
-
-            $this->articleService->createArticlesFromContent($content['items'], $source);
         }
     }
 }

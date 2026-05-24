@@ -1,71 +1,92 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        {% block stylesheets %}{% endblock %}
+    <title>{% block title %}Welcome!{% endblock %}</title>
+    {% block stylesheets %}{% endblock %}
 
-        {% block javascripts %}
-            {% block importmap %}{{ importmap('app') }}{% endblock %}
-        {% endblock %}
-    </head>
-    <body>
-        <nav class="fixed top-0 z-50 w-full bg-gray-800">
-            <div class="px-3 py-3 lg:px-5 lg:pl-3">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center justify-start rtl:justify-end">
-                        <a href="{{ path('app.home') }}" class="flex ms-2 md:me-24">
-                            <h1 class="self-center text-2xl font-semibold whitespace-nowrap text-white">FeedWatch</h1>
-                            <span class="self-center text-xs text-gray-400 ms-2">{{ composer_version }}</span>
-                        </a>
+    {% block javascripts %}
+        {% block importmap %}{{ importmap('app') }}{% endblock %}
+    {% endblock %}
+</head>
+<body>
+<nav class="fixed top-0 z-50 w-full bg-gray-800">
+    <div class="px-3 py-3 lg:px-5 lg:pl-3">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center justify-start rtl:justify-end">
+                {% if block("sidebar") is not empty %}
+                    <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar"
+                            aria-controls="logo-sidebar" type="button"
+                            class="inline-flex items-center p-2 text-md text-gray-400 rounded-lg lg:hidden hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600">
+                        <span class="sr-only">Open sidebar</span>
+                        <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"
+                             xmlns="http://www.w3.org/2000/svg">
+                            <path clip-rule="evenodd" fill-rule="evenodd"
+                                  d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
+                        </svg>
+                    </button>
+                {% endif %}
+
+                <a href="{{ path('app.home') }}" class="flex ms-2 md:me-24">
+                    <h1 class="self-center text-2xl font-semibold whitespace-nowrap text-white">FeedWatch</h1>
+                    <span class="self-center text-xs text-gray-400 ms-2">{{ composer_version }}</span>
+                </a>
+            </div>
+            <div class="flex items-center">
+                <div class="flex items-center ms-3">
+                    <div>
+                        <button type="button"
+                                class="flex text-md bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-600"
+                                aria-expanded="false" data-dropdown-toggle="dropdown-user">
+                            <span class="sr-only">Open user menu</span>
+                            {{ ux_icon('flowbite:user-circle-outline', {class: 'w-7 h-7 text-white'}) }}
+                        </button>
                     </div>
-                    <div class="flex items-center">
-                        <div class="flex items-center ms-3">
-                            <div>
-                                <button type="button" class="flex text-md bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-600" aria-expanded="false" data-dropdown-toggle="dropdown-user">
-                                    <span class="sr-only">Open user menu</span>
-                                    {{ ux_icon('flowbite:user-circle-outline', {class: 'w-7 h-7 text-white'}) }}
-                                </button>
+                    <div
+                        class="hidden z-50 my-4 w-56 text-base list-none bg-white rounded divide-y divide-gray-100 shadow"
+                        id="dropdown-user">
+                        {% if app.user %}
+                            <div class="py-3 px-4">
+                                <span class="block text-md font-semibold text-gray-900">{{ app.user.username }}</span>
+                                <span
+                                    class="block text-md font-light text-gray-500 truncate">{{ app.user.email }}</span>
                             </div>
-                            <div class="hidden z-50 my-4 w-56 text-base list-none bg-white rounded divide-y divide-gray-100 shadow" id="dropdown-user">
-                                {% if app.user %}
-                                    <div class="py-3 px-4">
-                                        <span class="block text-md font-semibold text-gray-900">{{ app.user.username }}</span>
-                                        <span class="block text-md font-light text-gray-500 truncate">{{ app.user.email }}</span>
-                                    </div>
-                                    <ul class="py-1 font-light text-gray-500" aria-labelledby="dropdown">
-                                        <li>
-                                            <a href="{{ path('app.admin.category.index') }}" class="block py-2 px-4 text-md hover:bg-gray-100">{{ 'navigation.header.categories'|trans }}</a>
-                                        </li>
-
-                                        <li>
-                                            <a href="{{ path('app.admin.source.index') }}" class="block py-2 px-4 text-md hover:bg-gray-100">{{ 'navigation.header.sources'|trans }}</a>
-                                        </li>
-                                        
-                                        <li>
-                                            <a href="{{ path('app.logout') }}" class="block py-2 px-4 text-md hover:bg-gray-100">{{ 'navigation.header.logout'|trans }}</a>
-                                        </li>
-                                    </ul>
-                                {% else %}
-                                    <ul class="py-1 font-light text-gray-500" aria-labelledby="dropdown">
-                                        <li>
-                                            <a href="{{ path('app.login') }}" class="block py-2 px-4 text-md hover:bg-gray-100">{{ 'navigation.header.login'|trans }}</a>
-                                        </li>
-                                    </ul>
+                            <ul class="py-1 font-light text-gray-500" aria-labelledby="dropdown">
+                                {% if app.user.hasRole('ROLE_ADMIN') %}
+                                    <li>
+                                        <a href="{{ path('app.admin.index') }}"
+                                           class="block py-2 px-4 text-md hover:bg-gray-100">{{ 'navigation.header.administration'|trans }}</a>
+                                    </li>
                                 {% endif %}
-                            </div>
-                        </div>
+
+                                <li>
+                                    <a href="{{ path('app.logout') }}"
+                                       class="block py-2 px-4 text-md hover:bg-gray-100">{{ 'navigation.header.logout'|trans }}</a>
+                                </li>
+                            </ul>
+                        {% else %}
+                            <ul class="py-1 font-light text-gray-500" aria-labelledby="dropdown">
+                                <li>
+                                    <a href="{{ path('app.login') }}"
+                                       class="block py-2 px-4 text-md hover:bg-gray-100">{{ 'navigation.header.login'|trans }}</a>
+                                </li>
+                            </ul>
+                        {% endif %}
                     </div>
                 </div>
             </div>
-        </nav>
-
-        <div class="p-4">
-            <div class="mt-14 space-y-8">
-                {% block body %}{% endblock %}
-            </div>
         </div>
-    </body>
+    </div>
+</nav>
+
+{% block sidebar %}{% endblock %}
+
+<div class="p-4 {% if block("sidebar") is not empty %}lg:ml-72{% endif %}">
+    <div class="mt-14 space-y-8">
+        {% block body %}{% endblock %}
+    </div>
+</div>
+</body>
 </html>

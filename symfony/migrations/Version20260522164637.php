@@ -14,7 +14,7 @@ final class Version20260522164637 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return '';
+        return 'v1.0.0: Initial schema with User, Category, Source and Article entities';
     }
 
     public function up(Schema $schema): void

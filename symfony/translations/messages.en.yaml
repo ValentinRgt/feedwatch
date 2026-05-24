@@ -1,127 +1,192 @@
 navigation:
-  header:
-    login: "Login"
-    categories: "Category Management"
-    sources: "Source Management"
-    logout: "Logout"
-  sidebar:
-    home: "Home"
+    header:
+        login: "Login"
+        administration: "Administration"
+        logout: "Logout"
+    sidebar:
+        dashboard: "Dashboard"
+        categories: "Category Management"
+        sources: "Source Management"
+        monitoring: "Monitoring"
 
 command:
-  user:
-    create:
-      email: "Email address: "
-      email_invalid: "Invalid email address"
-      email_exists: "Email '%email%' is already in use"
-      username: "Username: "
-      username_invalid: "Username must be at least 3 characters long"
-      password: "Password: "
-      password_invalid: "Password must be at least 8 characters long"
-      confirm_password: "Confirm password: "
-      password_mismatch: "Passwords do not match!"
-      success: "User '%username%' created successfully!"
-    update:
-      not_found: "No user found with email '%email%'"
-      username: "Username (leave blank to keep '%username%'): "
-      username_invalid: "Username must be at least 3 characters long"
-      password: "New password (leave blank to keep current): "
-      password_invalid: "Password must be at least 8 characters long"
-      confirm_password: "Confirm new password: "
-      password_mismatch: "Passwords do not match!"
-      success: "User '%username%' updated successfully!"
-    delete:
-      not_found: "No user found with email '%email%'"
-      confirm: "Are you sure you want to delete user '%username%' (%email%)?"
-      cancelled: "Deletion cancelled."
-      success: "User '%username%' deleted successfully!"
+    user:
+        create:
+            email: "Email address: "
+            email_invalid: "Invalid email address"
+            email_exists: "Email '%email%' is already in use"
+            username: "Username: "
+            username_invalid: "Username must be at least 3 characters long"
+            password: "Password: "
+            password_invalid: "Password must be at least 8 characters long"
+            confirm_password: "Confirm password: "
+            password_mismatch: "Passwords do not match!"
+            success: "User '%username%' created successfully!"
+        update:
+            not_found: "No user found with email '%email%'"
+            username: "Username (leave blank to keep '%username%'): "
+            username_invalid: "Username must be at least 3 characters long"
+            password: "New password (leave blank to keep current): "
+            password_invalid: "Password must be at least 8 characters long"
+            confirm_password: "Confirm new password: "
+            password_mismatch: "Passwords do not match!"
+            success: "User '%username%' updated successfully!"
+        delete:
+            not_found: "No user found with email '%email%'"
+            confirm: "Are you sure you want to delete user '%username%' (%email%)?"
+            cancelled: "Deletion cancelled."
+            success: "User '%username%' deleted successfully!"
 
 pagination:
-  previous: "Previous"
-  next: "Next"
+    previous: "Previous"
+    next: "Next"
+    page_size: "Per page:"
 
 status:
-  active: "Active"
-  inactive: "Inactive"
+    active: "Active"
+    inactive: "Inactive"
+    in_error: "In error"
 
 format:
-  xml: "XML"
-  html: "HTML"
+    xml: "XML"
+    html: "HTML"
 
 periodicity:
-  every_15_minutes: "Every 15 minutes"
-  every_30_minutes: "Every 30 minutes"
-  hourly: "Every hour"
-  every_6_hours: "Every 6 hours"
-  every_12_hours: "Every 12 hours"
-  daily: "Daily"
-  weekly: "Weekly"
-  monthly: "Monthly"
+    every_15_minutes: "Every 15 minutes"
+    every_30_minutes: "Every 30 minutes"
+    hourly: "Every hour"
+    every_6_hours: "Every 6 hours"
+    every_12_hours: "Every 12 hours"
+    daily: "Daily"
+    weekly: "Weekly"
+    monthly: "Monthly"
 
 pages:
-  index:
-    title: "FeedWatch :: Home"
-    all_feeds: "All feeds"
-    no_feeds: "No feeds added yet."
-  login:
-    title: "FeedWatch :: Login"
-    email: "Email address"
-    password: "Password"
-    submit: "Log in"
-  admin:
-    categories:
-      form:
-        name: "Category name"
-        name_placeholder: "Enter category name"
-      index:
-        title: "FeedWatch :: Category Management"
-        no_categories: "No categories created yet."
-        not_updated: "No updates yet."
-        add_category: "Add category"
-        table:
-          title: "Category Management"
-          name: "Name"
-          sources: "Sources"
-          created_at: "Created At"
-          updated_at: "Updated At"
-          actions: "Actions"
-        modal:
-          title: "New category"
-          submit: "Create"
-        delete:
-          confirm:
-            title: "Delete this category?"
-            text: 'The category "%name%" will be permanently deleted. This action cannot be undone.'
-            confirm: "Yes, delete it"
-            cancel: "Cancel"
-          success: 'The category "%name%" has been deleted.'
-          error: "Unable to delete the category. Please try again."
-      edit:
-        title: "FeedWatch :: Edit category %name%"
-        success: "Category updated successfully!"
-        submit: "Update"
-        no_source_associated: "No sources associated with this category yet."
-    sources:
-      index:
-        title: "FeedWatch :: Source Management"
-        no_sources: "No sources added yet."
-        not_updated: "No updates yet."
-        no_category: "No category assigned"
-        add_source: "Add source"
-        table:
-          title: "Source Management"
-          name: "Name"
-          url: "URL"
-          category: "Category"
-          format: "Format"
-          status: "Status"
-          created_at: "Created At"
-          last_fetched_at: "Last Fetched At"
-          updated_at: "Updated At"
-          actions: "Actions"
-        modal:
-          title: "New source"
-          submit: "Create"
-      edit:
-        title: "FeedWatch :: Edit source %name%"
-        success: "Source updated successfully!"
-        submit: "Update"
+    index:
+        title: "FeedWatch :: Home"
+        all_feeds: "All feeds"
+        no_feeds: "No feeds added yet."
+    login:
+        title: "FeedWatch :: Login"
+        email: "Email address"
+        password: "Password"
+        submit: "Log in"
+    admin:
+        index:
+            title: "FeedWatch :: Administration"
+            stats:
+                sources: "Sources"
+                categories: "Categories"
+                feeds: "Feeds"
+                errors: "Errors"
+            most_active:
+                sources_30_days: "Most active sources (last 30 days)"
+                sources_7_days: "Most active sources (last 7 days)"
+                categories_30_days: "Most active categories (last 30 days)"
+                categories_7_days: "Most active categories (last 7 days)"
+                table:
+                    rank: "#"
+                    source: "Source"
+                    category: "Category"
+                    articles: "Articles"
+                empty: "No activity recorded for this period."
+        monitoring:
+            index:
+                title: "FeedWatch :: Monitoring"
+                count: "%count% error(s) recorded"
+                empty: "No errors recorded. All sources are running smoothly."
+                table:
+                    title: "Source fetch errors"
+                    source: "Source"
+                    exception: "Exception"
+                    message: "Message"
+                    occurred_at: "Occurred at"
+                    actions: "Actions"
+                delete:
+                    confirm:
+                        title: "Dismiss this error?"
+                        text: "The error entry will be permanently removed. The underlying issue must still be fixed in code."
+                        confirm: "Yes, dismiss"
+                        cancel: "Cancel"
+                report:
+                    title: "[Scheduler] Failed to fetch source \"%source%\""
+                    body: |
+                        ## Source
+
+                        - Name: %source%
+                        - URL: %url%
+                        - Format: %format%
+
+                        ## Error
+
+                        - Exception: `%exception%`
+                        - Message: %message%
+                        - File: %file%:%line%
+                        - Occurred at: %occurred_at%
+
+                        ## Steps to reproduce
+
+                        <!-- Please describe what you were doing when this happened. -->
+
+                        ## Additional context
+
+                        <!-- Add any other context about the problem here. -->
+
+        categories:
+            form:
+                name: "Category name"
+                name_placeholder: "Enter category name"
+            index:
+                title: "FeedWatch :: Category Management"
+                no_categories: "No categories created yet."
+                not_updated: "No updates yet."
+                add_category: "Add category"
+                table:
+                    title: "Category Management"
+                    name: "Name"
+                    sources: "Sources"
+                    created_at: "Created At"
+                    updated_at: "Updated At"
+                    actions: "Actions"
+                modal:
+                    title: "New category"
+                    submit: "Create"
+                delete:
+                    confirm:
+                        title: "Delete this category?"
+                        text: 'The category "%name%" will be permanently deleted. This action cannot be undone.'
+                        confirm: "Yes, delete it"
+                        cancel: "Cancel"
+                    success: 'The category "%name%" has been deleted.'
+                    error: "Unable to delete the category. Please try again."
+            edit:
+                title: "FeedWatch :: Edit category %name%"
+                success: "Category updated successfully!"
+                submit: "Update"
+                no_source_associated: "No sources associated with this category yet."
+
+        sources:
+            index:
+                title: "FeedWatch :: Source Management"
+                no_sources: "No sources added yet."
+                not_updated: "No updates yet."
+                no_category: "No category assigned"
+                add_source: "Add source"
+                table:
+                    title: "Source Management"
+                    name: "Name"
+                    url: "URL"
+                    category: "Category"
+                    format: "Format"
+                    status: "Status"
+                    created_at: "Created At"
+                    last_fetched_at: "Last Fetched At"
+                    updated_at: "Updated At"
+                    actions: "Actions"
+                modal:
+                    title: "New source"
+                    submit: "Create"
+            edit:
+                title: "FeedWatch :: Edit source %name%"
+                success: "Source updated successfully!"
+                submit: "Update"

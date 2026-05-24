@@ -46,6 +46,7 @@ class SourceFixture extends Fixture implements FixtureGroupInterface, DependentF
         $source->setFormat(FormatEnum::HTML);
         $source->setPeriodicity(PeriodicityEnum::DAILY);
         $source->setStatus(StatusEnum::INACTIVE);
+        $this->addReference(self::SOURCE_REFERENCE . 'invalid', $source);
         $manager->persist($source);
 
         $manager->flush();

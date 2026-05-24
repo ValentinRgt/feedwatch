@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Controller\Admin;
+namespace App\Http\AdminController;
 
 use App\Entity\Source;
 use App\Form\SourceType;
@@ -11,22 +11,24 @@ use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\ValueResolver;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-#[Route('/admin/source', name: 'app.admin.source.')]
+#[Route('/source', name: 'app.admin.source.')]
 final class SourceController extends AbstractController
 {
     #[Route('', name: 'index')]
     public function index(
         SourceRepository $sourceRepository,
         PaginatorInterface $paginator,
-        Request $request
+        Request $request,
+        #[ValueResolver('pageSize')] int $pageSize,
     ): Response {
         $sources = $paginator->paginate(
             $sourceRepository->createQueryBuilder('s')->orderBy('s.id')->getQuery(),
             $request->query->getInt('page', 1),
-            20
+            $pageSize
         );
 
         $form = $this->createForm(SourceType::class);
