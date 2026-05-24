@@ -23,15 +23,8 @@ final class MonitoringController extends AbstractController
         Request $request,
         #[ValueResolver('pageSize')] int $pageSize,
     ): Response {
-        $query = $sourceErrorRepository
-            ->createQueryBuilder('e')
-            ->innerJoin('e.source', 's')
-            ->addSelect('s')
-            ->orderBy('e.createdAt', 'DESC')
-            ->getQuery();
-
         $errors = $paginator->paginate(
-            $query,
+            $sourceErrorRepository->findSourceErrors(),
             $request->query->getInt('page', 1),
             $pageSize,
         );

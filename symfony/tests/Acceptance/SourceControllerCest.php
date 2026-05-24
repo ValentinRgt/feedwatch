@@ -4,12 +4,23 @@ declare(strict_types=1);
 
 namespace App\Tests\Acceptance;
 
+use App\Fixture\Test\CategoryFixture;
+use App\Fixture\Test\SourceFixture;
 use App\Fixture\Test\UserFixture;
 use App\Tests\Support\AcceptanceTester;
 use Codeception\Util\HttpCode;
 
 class SourceControllerCest
 {
+    public function _before(AcceptanceTester $I): void
+    {
+        $I->loadFixtures([
+            $I->grabService(UserFixture::class),
+            $I->grabService(CategoryFixture::class),
+            $I->grabService(SourceFixture::class),
+        ]);
+    }
+
     /**
      * An anonymous visitor is redirected to the login page.
      * @param AcceptanceTester $I
@@ -50,7 +61,7 @@ class SourceControllerCest
 
         $I->seeResponseCodeIsSuccessful();
         $I->see('Source Management');
-        $I->see('dev.to - Web Development');
+        $I->see('TEST Source 0');
     }
 
     /**

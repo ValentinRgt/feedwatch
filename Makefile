@@ -63,7 +63,7 @@ codeception: # Run codeception tests
 	make permissions
 	docker compose exec --user $$(id -u):$$(id -g) web php -dxdebug.mode=off vendor/bin/codecept clean
 	docker compose exec --user $$(id -u):$$(id -g) web php -dxdebug.mode=off vendor/bin/codecept build
-	docker compose exec --user www-data:www-data web php -dxdebug.mode=off vendor/bin/codecept run $(suite) $(test) $(CODECEPT_DEBUG_FLAG)
+	docker compose exec web php -dxdebug.mode=off vendor/bin/codecept run $(suite) $(test) $(CODECEPT_DEBUG_FLAG)
 
 .PHONY: quality
 quality: ## Runs code quality tools (PHP CS Fixer, PHP Code Sniffer, PHPStan, PHP Mess Detector)

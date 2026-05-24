@@ -6,6 +6,7 @@ namespace App\Repository;
 
 use App\Entity\SourceError;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Query;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -45,17 +46,12 @@ class SourceErrorRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param int $limit
-     * @return SourceError[]
+     * @return Query
      */
-    public function findRecent(int $limit): array
+    public function findSourceErrors(): Query
     {
         return $this->createQueryBuilder('e')
-            ->innerJoin('e.source', 's')
-            ->addSelect('s')
             ->orderBy('e.createdAt', 'DESC')
-            ->setMaxResults($limit)
-            ->getQuery()
-            ->getResult();
+            ->getQuery();
     }
 }

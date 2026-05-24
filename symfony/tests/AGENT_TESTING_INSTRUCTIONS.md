@@ -9,7 +9,7 @@
 
 ## 1. Execution environment
 
-- **No local PHP**: PHP 8.4 lives in the `feedwatch-web-1` Docker container (working dir `/app`, which maps to `symfony/`). MariaDB is in `feedwatch-mariadb-1`.
+- **No local PHP**: PHP 8.4 lives in the `feedwatch-web-1` Docker container (working dir `/app`, which maps to `symfony/`). The database is **SQLite**, stored at `var/data_<env>.db` inside the container (`DATABASE_URL` resolves to `sqlite:///%kernel.project_dir%/var/data_%kernel.environment%.db`). There is no separate DB container anymore.
 - Every PHP / Composer / Console command goes through:
   ```bash
   docker exec feedwatch-web-1 sh -c '<command>'
@@ -49,6 +49,7 @@
 - **Namespace**: `App\Tests\<Suite>\...`; the tester is injected (`UnitTester`, `FunctionalTester`, `AcceptanceTester`).
 - `declare(strict_types=1);` at the top of every file.
 - Tests are **not linted** (`phpcs`/`phpstan` only target `src/`). Still keep a style consistent with the existing tests (`_before`, private helpers at the bottom of the class).
+- **Controllers live under `App\Http\…`**: public controllers in `App\Http\Controller` (e.g. `HomeController`, `SecurityController`) and admin controllers in `App\Http\AdminController` (e.g. `IndexController`, `CategoryController`, `SourceController`, `MonitoringController`). Test namespaces stay flat (`App\Tests\Functional`, `App\Tests\Acceptance`) but the SUT imports reflect the new layout.
 
 ---
 
@@ -80,6 +81,11 @@ Always **network-free**: `Symfony\Component\HttpClient\MockHttpClient` + `MockRe
 ```php
 new XMLService(new MockHttpClient(new MockResponse($xmlFixture)));
 ```
+
+### Targeted value resolvers (controllers)
+`PageSizeResolver` is a `ValueResolverInterface` exposed under the `pageSize` target, fed by the `%items_per_page%` parameter (`[10, 20, 50, 100]`). Controllers receive it via `#[ValueResolver('pageSize')] int $pageSize`.
+- Test it in **Unit**: instantiate `new PageSizeResolver([10, 20, …])`, drive `resolve(Request, ArgumentMetadata)` and collect the generator with `iterator_to_array()`. Cover: value missing, value in the whitelist, value outside the whitelist (must fall back to `options[0]`).
+- For controllers, a Functional test that hits a route with `?pageSize=` is enough to prove the wiring; do not double the resolver.
 
 ### Database (Functional)
 - Create precise data: `$id = $I->haveInRepository(Source::class, [...]);` (typed setters accept enums).
@@ -122,10 +128,25 @@ Any new file under `src/` (e.g. a test fixture) **must** pass phpcs + phpstan.
 
 ## 7. What is already covered (reference)
 
-- **Unit**: `UserService`, `SourceService`, `ArticleService`, `AbstractFeedReader`, `XMLService`, `HTMLService`, `SourceMessageHandler`, enums (`Periodicity`/`Format`/`Status`), `CategoryListener`, `DateTimeImmutableListener`, `DateTimeImmutableTrait`, `ComposerVersion`.
+- **Unit**: `UserService`, `SourceService` (`getReader`, `updateSource`), `ArticleService`, `AbstractFeedReader`, `XMLService`, `HTMLService`, `SourceMessageHandler` (happy path + reader-returns-null), enums (`Periodicity`/`Format`/`Status`), `CategoryListener`, `DateTimeImmutableListener`, `DateTimeImmutableTrait`, `ComposerVersion`.
 - **Functional**: `SourceRepository::findDueSources`, `ArticleRepository`, controllers `Home`/`Security`/`Admin\Category`/`Admin\Source`, commands `User create`/`update`/`delete`.
 - **Acceptance**: `Home`, `Security`, `Admin\Category`, `Admin\Source`.
 
 ### Known open points
+
+#### Tests currently failing — must be fixed
+- **`SourceServiceCest` — 5 errors**: `SourceService::__construct` now requires a third argument `SourceErrorRepository` (see [Service/SourceService.php](src/Service/SourceService.php)). Every `new SourceService([...], $this->repository())` in [tests/Unit/Service/SourceServiceCest.php](symfony/tests/Unit/Service/SourceServiceCest.php) must pass an `SourceErrorRepository` double (`Stub::makeEmpty(SourceErrorRepository::class)`).
+- **`SourceMessageHandlerCest::skipsSourcesWhoseChecksumHasNotChanged` — 1 failure**: `SourceMessageHandler::__invoke` no longer pre-checks `Source::getChecksum()` against the reader's payload; checksum gating lives entirely in the feed reader (`read()` returns `null` when unchanged). The two valid branches are now (a) reader returns `null` → skip, (b) reader returns content → update + create articles. Drop or rewrite this "same-checksum" scenario — it duplicates `skipsSourcesWhenTheReaderReturnsNull` once the unchanged-checksum logic is read from the reader double directly.
+- **`Acceptance\CategoryControllerCest::adminCanCreateAndRemoveACategory` — 1 failure**: the new category appears in `<th>` cells in the listing table, and `$I->see('Acceptance E2E Category')` after submit is checking for the text *anywhere*, but the listing now renders the create button label `Add category` and a `<select>` with the page-size options before showing the new row. Likely a real bug in either the redirect target or a missing assertion — investigate before changing the test.
+
+#### Missing coverage (to add)
+- **`PageSizeResolver`** ([src/Resolver/PageSizeResolver.php](src/Resolver/PageSizeResolver.php)) — no unit test yet. Cover the three branches: missing param → default (first option), allowed value → echoed, not-in-whitelist → fallback to default. Use the **Unit** suite.
+- **`SourceService::recordFailure()`** — new method that persists a `SourceError` and flips the `Source` to `StatusEnum::IN_ERROR`. Unit-test it with in-memory subclasses of `SourceRepository` / `SourceErrorRepository` (capture saved entities in public arrays), then assert exception class/message/file/line are copied and the source status is updated.
+- **`SourceMessageHandler` failure branch** — when the reader (or any collaborator) throws, the handler logs the error and calls `sourceService->recordFailure($source, $throwable)`. Add a test that drives the reader stub to throw, doubles `SourceService::recordFailure` to capture calls (`use (&$failures)`), and asserts the throwable + source are forwarded.
+- **`SourceErrorRepository::findRecent($limit)`** ([src/Repository/SourceErrorRepository.php](src/Repository/SourceErrorRepository.php)) — Functional test in `tests/Functional/Repository/`: insert several `SourceError` rows with controlled `createdAt`, assert ordering (DESC) and `$limit`.
+- **`SourceRepository::findMostActive($days, $limit)`** and **`CategoryRepository::findMostActive($days, $limit)`** — Functional repository tests: seed sources/categories with articles whose `createdAt` straddles the `$days` window, assert ordering by `articleCount DESC` and the cutoff.
+- **`Admin\IndexController`** ([src/Http/AdminController/IndexController.php](src/Http/AdminController/IndexController.php)) — dashboard rendering counts and the four "most active" arrays. Functional test: seed minimal data, log in as admin, assert the response is 200 and the counts appear; access control mirrors the other admin controllers (anonymous → login, regular user → 403).
+- **`Admin\MonitoringController`** ([src/Http/AdminController/MonitoringController.php](src/Http/AdminController/MonitoringController.php)) — `index` (paginated list of `SourceError` rows, joined with `Source`) and `delete` (CSRF-protected POST). Functional + Acceptance tests symmetric to `Admin\Source`. Will need a `Test` `SourceErrorFixture` (or inline `haveInRepository`) to seed errors.
+
+#### Documented current behaviour (not a bug)
 - `HTMLService::read()` is a **stub**: it always returns `null` (HTML parsing not implemented). The tests document this current behaviour; complete them once parsing exists.
-- `SourceMessageHandler` re-checks `checksum` even though `XMLService::read()` already returns `null` when the checksum is unchanged: test both branches by driving the reader double directly.

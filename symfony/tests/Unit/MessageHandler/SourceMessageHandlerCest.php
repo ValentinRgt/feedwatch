@@ -17,11 +17,17 @@ use App\Tests\Support\UnitTester;
 use Codeception\Stub;
 use DateTimeImmutable;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
+use Throwable;
 
 /**
  * The handler is exercised with every collaborator doubled, so no network
- * call or database access is involved: the reader's read() result is fully
- * scripted per source.
+ * call or database access is involved: the reader's read() result (or thrown
+ * exception) is fully scripted per source.
+ *
+ * Checksum gating lives entirely in the feed reader (it returns null when the
+ * content has not changed): the handler only has two branches — null skips,
+ * non-null updates and creates articles — plus the catch-all failure branch.
  */
 class SourceMessageHandlerCest
 {
@@ -38,21 +44,31 @@ class SourceMessageHandlerCest
 
     /**
      * @param Source[] $sources Sources reported as due.
-     * @param array<string, array{checksum: string, items: array<int, ArticleDTO>}|null> $responses
-     *        Per-source-name read() result.
+     * @param array<string, array{checksum: string, items: array<int, ArticleDTO>}|Throwable|null> $responses
+     *        Per-source-name read() result. A Throwable is rethrown to exercise the failure branch.
      * @param list<Source> $updated Reference collecting updateSource() calls.
      * @param list<array{items: array<int, ArticleDTO>, source: Source}> $created
      *        Reference collecting createArticlesFromContent() calls.
+     * @param list<array{source: Source, throwable: Throwable}> $failures
+     *        Reference collecting recordFailure() calls.
      */
     private function handler(
         array $sources,
         array $responses,
         array &$updated,
         array &$created,
+        array &$failures,
     ): SourceMessageHandler {
         /** @var FeedReaderInterface $reader */
         $reader = Stub::makeEmpty(FeedReaderInterface::class, [
-            'read' => fn (Source $source): ?array => $responses[$source->getName()] ?? null,
+            'read' => function (Source $source) use ($responses): ?array {
+                $response = $responses[$source->getName()] ?? null;
+                if ($response instanceof Throwable) {
+                    throw $response;
+                }
+
+                return $response;
+            },
         ]);
 
         /** @var SourceRepository $repository */
@@ -65,6 +81,9 @@ class SourceMessageHandlerCest
             'getReader' => fn (FormatEnum $format): FeedReaderInterface => $reader,
             'updateSource' => function (Source $source) use (&$updated): void {
                 $updated[] = $source;
+            },
+            'recordFailure' => function (Source $source, Throwable $throwable) use (&$failures): void {
+                $failures[] = ['source' => $source, 'throwable' => $throwable];
             },
         ]);
 
@@ -85,37 +104,22 @@ class SourceMessageHandlerCest
     {
         $updated = [];
         $created = [];
+        $failures = [];
         $source = $this->source('idle');
 
-        $handler = $this->handler([$source], ['idle' => null], $updated, $created);
+        $handler = $this->handler([$source], ['idle' => null], $updated, $created, $failures);
         $handler(new SourceMessage());
 
         $I->assertEmpty($updated, 'A source without new content must not be updated.');
         $I->assertEmpty($created, 'No article should be created without new content.');
-    }
-
-    public function skipsSourcesWhoseChecksumHasNotChanged(UnitTester $I): void
-    {
-        $updated = [];
-        $created = [];
-        $source = $this->source('stable', 'same-checksum');
-
-        $handler = $this->handler(
-            [$source],
-            ['stable' => ['checksum' => 'same-checksum', 'items' => [new ArticleDTO()]]],
-            $updated,
-            $created,
-        );
-        $handler(new SourceMessage());
-
-        $I->assertEmpty($updated);
-        $I->assertEmpty($created);
+        $I->assertEmpty($failures, 'A null read is a normal skip, not a failure.');
     }
 
     public function updatesSourceAndCreatesArticlesForFreshContent(UnitTester $I): void
     {
         $updated = [];
         $created = [];
+        $failures = [];
         $source = $this->source('fresh', 'old-checksum');
         $items = [new ArticleDTO(), new ArticleDTO()];
 
@@ -124,6 +128,7 @@ class SourceMessageHandlerCest
             ['fresh' => ['checksum' => 'new-checksum', 'items' => $items]],
             $updated,
             $created,
+            $failures,
         );
         $handler(new SourceMessage());
 
@@ -133,12 +138,14 @@ class SourceMessageHandlerCest
         $I->assertCount(1, $created);
         $I->assertSame($items, $created[0]['items']);
         $I->assertSame($source, $created[0]['source']);
+        $I->assertEmpty($failures);
     }
 
     public function processesEachDueSourceIndependently(UnitTester $I): void
     {
         $updated = [];
         $created = [];
+        $failures = [];
         $idle = $this->source('idle');
         $fresh = $this->source('fresh', 'old');
 
@@ -150,10 +157,63 @@ class SourceMessageHandlerCest
             ],
             $updated,
             $created,
+            $failures,
         );
         $handler(new SourceMessage());
 
         $I->assertSame([$fresh], $updated);
+        $I->assertCount(1, $created);
+        $I->assertSame($fresh, $created[0]['source']);
+        $I->assertEmpty($failures);
+    }
+
+    public function recordsAFailureWhenTheReaderThrows(UnitTester $I): void
+    {
+        $updated = [];
+        $created = [];
+        $failures = [];
+        $source = $this->source('broken', 'previous');
+        $throwable = new RuntimeException('Reader exploded');
+
+        $handler = $this->handler(
+            [$source],
+            ['broken' => $throwable],
+            $updated,
+            $created,
+            $failures,
+        );
+        $handler(new SourceMessage());
+
+        $I->assertEmpty($updated, 'A failing source must not be updated.');
+        $I->assertEmpty($created, 'No article should be created when the read fails.');
+        $I->assertCount(1, $failures);
+        $I->assertSame($source, $failures[0]['source']);
+        $I->assertSame($throwable, $failures[0]['throwable']);
+    }
+
+    public function continuesProcessingAfterAFailureOnAPreviousSource(UnitTester $I): void
+    {
+        $updated = [];
+        $created = [];
+        $failures = [];
+        $broken = $this->source('broken');
+        $fresh = $this->source('fresh', 'old');
+
+        $handler = $this->handler(
+            [$broken, $fresh],
+            [
+                'broken' => new RuntimeException('Boom'),
+                'fresh' => ['checksum' => 'new', 'items' => [new ArticleDTO()]],
+            ],
+            $updated,
+            $created,
+            $failures,
+        );
+        $handler(new SourceMessage());
+
+        $I->assertCount(1, $failures, 'The first source must be recorded as failed.');
+        $I->assertSame($broken, $failures[0]['source']);
+        $I->assertSame([$fresh], $updated, 'Sources after a failure are still processed.');
         $I->assertCount(1, $created);
         $I->assertSame($fresh, $created[0]['source']);
     }

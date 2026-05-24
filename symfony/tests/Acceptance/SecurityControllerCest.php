@@ -9,6 +9,13 @@ use App\Tests\Support\AcceptanceTester;
 
 class SecurityControllerCest
 {
+    public function _before(AcceptanceTester $I): void
+    {
+        $I->loadFixtures([
+            $I->grabService(UserFixture::class),
+        ]);
+    }
+
     /**
      * Test that the login page is displayed correctly.
      * @param AcceptanceTester $I
