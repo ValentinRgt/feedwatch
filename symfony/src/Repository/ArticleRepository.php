@@ -62,9 +62,10 @@ class ArticleRepository extends ServiceEntityRepository
 
     /**
      * @param Category|null $category
+     * @param string|null $search
      * @return Query
      */
-    public function findByCategoryQuery(?Category $category = null): Query
+    public function findByCategoryQuery(?Category $category = null, ?string $search = null): Query
     {
         $qb = $this->createQueryBuilder('a');
 
@@ -78,6 +79,32 @@ class ArticleRepository extends ServiceEntityRepository
             $qb->andWhere('s.category = :category')
                 ->setParameter('category', $category);
         }
+
+        if (!empty($search)) {
+            $qb->andWhere('LOWER(a.title) LIKE :search OR LOWER(s.name) LIKE :search OR LOWER(c.name) LIKE :search')
+                ->setParameter('search', '%' . strtolower(trim($search)) . '%');
+        }
+
+        return $qb->getQuery();
+    }
+
+    /**
+     * @param string $search
+     * @return Query
+     */
+    public function findByQuery(string $search): Query
+    {
+        $qb = $this->createQueryBuilder('a');
+        $qb->innerJoin('a.source', 's')
+            ->leftJoin('s.category', 'c');
+
+        $qb->where('LOWER(a.title) LIKE :search')
+            ->orWhere('LOWER(s.name) LIKE :search')
+            ->orWhere('LOWER(c.name) LIKE :search')
+            ->setParameter('search', '%' . strtolower(trim($search)) . '%');
+
+        $qb->orderBy('a.publishedAt', 'DESC')
+            ->addOrderBy('a.createdAt', 'DESC');
 
         return $qb->getQuery();
     }

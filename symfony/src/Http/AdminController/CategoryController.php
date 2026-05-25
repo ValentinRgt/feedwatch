@@ -23,10 +23,19 @@ final class CategoryController extends AbstractController
         CategoryRepository $categoryRepository,
         PaginatorInterface $paginator,
         Request $request,
+        #[ValueResolver('query')] string $query,
         #[ValueResolver('pageSize')] int $pageSize,
     ): Response {
+        $reportory = $categoryRepository->createQueryBuilder('c')
+            ->orderBy('c.id')
+            ->getQuery();
+
+        if (!empty($query)) {
+            $reportory = $categoryRepository->findByQuery($query);
+        }
+
         $categories = $paginator->paginate(
-            $categoryRepository->createQueryBuilder('c')->orderBy('c.id')->getQuery(),
+            $reportory,
             $request->query->getInt('page', 1),
             $pageSize
         );

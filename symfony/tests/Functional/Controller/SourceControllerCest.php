@@ -140,14 +140,14 @@ class SourceControllerCest
     }
 
     /**
-     * With the default page size of 10 and twelve extra sources seeded on top of
-     * the fixture's two, the first page must hold ten rows and a pagination block.
+     * With the default page size of 20 and 22 extra sources seeded on top of the
+     * fixture's 3, the first page must hold 20 rows and render the pagination block.
      * @param FunctionalTester $I
      * @return void
      */
-    public function listingShowsTenItemsAndRendersPaginationByDefault(FunctionalTester $I): void
+    public function listingShowsTwentyItemsAndRendersPaginationByDefault(FunctionalTester $I): void
     {
-        $this->seedExtraSources($I, 12);
+        $this->seedExtraSources($I, 22);
 
         $I->loginAsAUser(UserFixture::ADMIN_EMAIL);
 
@@ -155,7 +155,7 @@ class SourceControllerCest
 
         $I->seeResponseCodeIsSuccessful();
         $rows = $I->grabMultiple('//tbody/tr');
-        $I->assertCount(10, $rows);
+        $I->assertCount(20, $rows);
         $I->seeElement('#pagination');
         $I->seeElement('//a[@rel="next"]');
     }
@@ -167,8 +167,8 @@ class SourceControllerCest
      */
     public function secondPageShowsTheRemainingItems(FunctionalTester $I): void
     {
-        // Fixture provides 2 sources; seeding 12 more brings the total to 14 (10 + 4).
-        $this->seedExtraSources($I, 12);
+        // Fixture provides 3 sources; seeding 22 more brings the total to 25 (20 + 5).
+        $this->seedExtraSources($I, 22);
 
         $I->loginAsAUser(UserFixture::ADMIN_EMAIL);
 
@@ -188,27 +188,27 @@ class SourceControllerCest
      */
     public function pageSizeQueryParameterControlsTheNumberOfRows(FunctionalTester $I): void
     {
-        $this->seedExtraSources($I, 18);
+        $this->seedExtraSources($I, 47);
 
         $I->loginAsAUser(UserFixture::ADMIN_EMAIL);
 
-        $I->amOnPage('/admin/source?pageSize=20');
+        $I->amOnPage('/admin/source?pageSize=50');
 
         $I->seeResponseCodeIsSuccessful();
         $rows = $I->grabMultiple('//tbody/tr');
-        // Fixture's 2 sources + 18 inline sources = exactly 20 rows.
-        $I->assertCount(20, $rows);
-        // $I->dontSeeElement('#pagination');
+        // Fixture's 3 sources + 47 inline sources = exactly 50 rows.
+        $I->assertCount(50, $rows);
+        $I->dontSeeElement('#pagination');
     }
 
     /**
-     * An out-of-whitelist pageSize value falls back to the first option (10 rows).
+     * An out-of-whitelist pageSize value falls back to the first option (20 rows).
      * @param FunctionalTester $I
      * @return void
      */
     public function pageSizeFallsBackToTheDefaultWhenTheValueIsNotAllowed(FunctionalTester $I): void
     {
-        $this->seedExtraSources($I, 12);
+        $this->seedExtraSources($I, 22);
 
         $I->loginAsAUser(UserFixture::ADMIN_EMAIL);
 
@@ -216,7 +216,7 @@ class SourceControllerCest
 
         $I->seeResponseCodeIsSuccessful();
         $rows = $I->grabMultiple('//tbody/tr');
-        $I->assertCount(10, $rows);
+        $I->assertCount(20, $rows);
     }
 
     /**
@@ -233,8 +233,8 @@ class SourceControllerCest
 
         $I->seeResponseCodeIsSuccessful();
         $values = $I->grabMultiple('//select[@id="page-size-select"]/option', 'value');
-        $I->assertSame(['10', '20', '50', '100'], $values);
-        $I->seeElement('//select[@id="page-size-select"]/option[@value="10"][@selected]');
+        $I->assertSame(['20', '50', '100'], $values);
+        $I->seeElement('//select[@id="page-size-select"]/option[@value="20"][@selected]');
     }
 
     /**
@@ -250,7 +250,31 @@ class SourceControllerCest
 
         $I->seeResponseCodeIsSuccessful();
         $I->seeElement('//select[@id="page-size-select"]/option[@value="100"][@selected]');
-        $I->dontSeeElement('//select[@id="page-size-select"]/option[@value="10"][@selected]');
+        $I->dontSeeElement('//select[@id="page-size-select"]/option[@value="20"][@selected]');
+    }
+
+    public function searchQueryFiltersSourcesByName(FunctionalTester $I): void
+    {
+        $I->loginAsAUser(UserFixture::ADMIN_EMAIL);
+
+        // Fixture seeds "TEST Source 0", "TEST Source 1", and "Invalid Source".
+        $I->amOnPage('/admin/source?q=invalid');
+
+        $I->seeResponseCodeIsSuccessful();
+        $rows = $I->grabMultiple('//tbody/tr');
+        $I->assertCount(1, $rows);
+        $I->see('Invalid Source');
+        $I->dontSee('TEST Source 0');
+    }
+
+    public function searchQueryEchoesIntoTheSearchInput(FunctionalTester $I): void
+    {
+        $I->loginAsAUser(UserFixture::ADMIN_EMAIL);
+
+        $I->amOnPage('/admin/source?q=invalid');
+
+        $I->seeResponseCodeIsSuccessful();
+        $I->seeElement('//input[@id="search-query"][@name="q"][@value="invalid"]');
     }
 
     private function seedExtraSources(FunctionalTester $I, int $count): void

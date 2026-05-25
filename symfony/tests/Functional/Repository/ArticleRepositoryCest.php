@@ -116,4 +116,103 @@ class ArticleRepositoryCest
 
         $I->assertCount(2, $all);
     }
+
+    public function findByCategoryQueryFiltersAcrossEveryCategoryWhenOnlyASearchIsGiven(FunctionalTester $I): void
+    {
+        $tech = $this->createCategory($I, 'tech');
+        $sport = $this->createCategory($I, 'sport');
+        $techSource = $this->createSource($I, 'tech-feed', $tech);
+        $sportSource = $this->createSource($I, 'sport-feed', $sport);
+
+        $I->haveInRepository(Article::class, ['title' => 'Symfony release', 'link' => 'l-1', 'source' => $techSource]);
+        $I->haveInRepository(Article::class, ['title' => 'Football news', 'link' => 'l-2', 'source' => $sportSource]);
+
+        /** @var Article[] $articles */
+        $articles = $this->repository($I)->findByCategoryQuery(null, 'symfony')->getResult();
+        $titles = array_map(static fn (Article $a): ?string => $a->getTitle(), $articles);
+
+        $I->assertSame(['Symfony release'], $titles);
+    }
+
+    public function findByCategoryQueryIntersectsCategoryAndSearchFilters(FunctionalTester $I): void
+    {
+        $tech = $this->createCategory($I, 'tech');
+        $sport = $this->createCategory($I, 'sport');
+        $techSource = $this->createSource($I, 'tech-feed', $tech);
+        $sportSource = $this->createSource($I, 'sport-feed', $sport);
+
+        // 'symfony' matches in both categories, but only the tech one should come back.
+        $I->haveInRepository(Article::class, ['title' => 'Symfony tech', 'link' => 'l-tech', 'source' => $techSource]);
+        $I->haveInRepository(Article::class, ['title' => 'Symfony sport', 'link' => 'l-sport', 'source' => $sportSource]);
+        $I->haveInRepository(Article::class, ['title' => 'Misc tech', 'link' => 'l-misc', 'source' => $techSource]);
+
+        /** @var Article[] $articles */
+        $articles = $this->repository($I)->findByCategoryQuery($tech, 'symfony')->getResult();
+        $titles = array_map(static fn (Article $a): ?string => $a->getTitle(), $articles);
+
+        $I->assertSame(['Symfony tech'], $titles);
+    }
+
+    public function findByQueryMatchesArticleTitleSourceNameOrCategoryName(FunctionalTester $I): void
+    {
+        $tech = $this->createCategory($I, 'tech-news');
+        $sport = $this->createCategory($I, 'sport-news');
+        $techSource = $this->createSource($I, 'TechCrunch', $tech);
+        $sportSource = $this->createSource($I, 'Eurosport', $sport);
+
+        $I->haveInRepository(Article::class, ['title' => 'About Symfony', 'link' => 'l-title', 'source' => $sportSource]);
+        $I->haveInRepository(Article::class, ['title' => 'About Football', 'link' => 'l-source', 'source' => $techSource]);
+        $I->haveInRepository(Article::class, ['title' => 'About Cycling', 'link' => 'l-cat', 'source' => $sportSource]);
+        $I->haveInRepository(Article::class, ['title' => 'Unrelated', 'link' => 'l-none', 'source' => $techSource]);
+
+        /** @var Article[] $titleMatch */
+        $titleMatch = $this->repository($I)->findByQuery('symfony')->getResult();
+        $I->assertSame(['About Symfony'], array_map(static fn (Article $a): ?string => $a->getTitle(), $titleMatch));
+
+        /** @var Article[] $sourceMatch */
+        $sourceMatch = $this->repository($I)->findByQuery('techcrunch')->getResult();
+        $titles = array_map(static fn (Article $a): ?string => $a->getTitle(), $sourceMatch);
+        sort($titles);
+        $I->assertSame(['About Football', 'Unrelated'], $titles);
+
+        /** @var Article[] $categoryMatch */
+        $categoryMatch = $this->repository($I)->findByQuery('sport-news')->getResult();
+        $titles = array_map(static fn (Article $a): ?string => $a->getTitle(), $categoryMatch);
+        sort($titles);
+        $I->assertSame(['About Cycling', 'About Symfony'], $titles);
+    }
+
+    public function findByQueryIsCaseInsensitiveAndTrimsWhitespace(FunctionalTester $I): void
+    {
+        $source = $this->createSource($I, 'feed');
+        $I->haveInRepository(Article::class, ['title' => 'Symfony Release', 'link' => 'l-a', 'source' => $source]);
+        $I->haveInRepository(Article::class, ['title' => 'Other news', 'link' => 'l-b', 'source' => $source]);
+
+        /** @var Article[] $upper */
+        $upper = $this->repository($I)->findByQuery('SYMFONY')->getResult();
+        /** @var Article[] $padded */
+        $padded = $this->repository($I)->findByQuery('  symfony  ')->getResult();
+
+        $I->assertSame(['Symfony Release'], array_map(static fn (Article $a): ?string => $a->getTitle(), $upper));
+        $I->assertSame(['Symfony Release'], array_map(static fn (Article $a): ?string => $a->getTitle(), $padded));
+    }
+
+    public function findByQueryOrdersByMostRecentlyPublished(FunctionalTester $I): void
+    {
+        $source = $this->createSource($I, 'feed');
+        $I->haveInRepository(Article::class, [
+            'title' => 'Older Symfony', 'link' => 'l-old', 'source' => $source,
+            'publishedAt' => new DateTimeImmutable('2026-04-01 10:00:00'),
+        ]);
+        $I->haveInRepository(Article::class, [
+            'title' => 'Newer Symfony', 'link' => 'l-new', 'source' => $source,
+            'publishedAt' => new DateTimeImmutable('2026-05-20 10:00:00'),
+        ]);
+
+        /** @var Article[] $articles */
+        $articles = $this->repository($I)->findByQuery('symfony')->getResult();
+
+        $I->assertSame('Newer Symfony', $articles[0]->getTitle());
+        $I->assertSame('Older Symfony', $articles[1]->getTitle());
+    }
 }

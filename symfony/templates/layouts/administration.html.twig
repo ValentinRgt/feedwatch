@@ -23,6 +23,12 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{{ path('app.admin.article.index') }}" class="flex items-center p-2 text-white rounded-lg hover:bg-gray-700 group">
+                        {{ ux_icon('bi:file-earmark-text-fill') }}
+                        <span class="ms-3 truncate">{{ 'navigation.sidebar.articles'|trans }}</span>
+                    </a>
+                </li>
+                <li>
                     <a href="{{ path('app.admin.monitoring.index') }}" class="flex items-center p-2 text-white rounded-lg hover:bg-gray-700 group">
                         {{ ux_icon('bi:exclamation-triangle-fill') }}
                         <span class="ms-3 truncate">{{ 'navigation.sidebar.monitoring'|trans }}</span>

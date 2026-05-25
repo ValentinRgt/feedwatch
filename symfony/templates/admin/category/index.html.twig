@@ -24,6 +24,10 @@
     <section class="p-6 bg-white rounded mb-3">
         <div class="flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between">
             <h1 class="text-xl font-bold">{{ 'pages.admin.categories.index.table.title'|trans }}</h1>
+            {% include '@components/_search_bar.html.twig' with {
+                label: 'pages.admin.categories.index.search.label'|trans,
+                placeholder: 'pages.admin.categories.index.search.placeholder'|trans
+            } %}
             <div class="inline-flex">
                 <button data-modal-target="create-modal" data-modal-toggle="create-modal"
                         class="me-3 text-white bg-gray-800 hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-3 py-2 focus:outline-none cursor-pointer">

@@ -7,6 +7,7 @@ namespace App\Repository;
 use App\Entity\Category;
 use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Query;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -63,5 +64,19 @@ class CategoryRepository extends ServiceEntityRepository
             ->setMaxResults($limit)
             ->getQuery()
             ->getArrayResult();
+    }
+
+    /**
+     * @param string $search
+     * @return Query
+     */
+    public function findByQuery(string $search): Query
+    {
+        $qb = $this->createQueryBuilder('c');
+
+        $qb->where('LOWER(c.name) LIKE :search')
+            ->setParameter('search', '%' . strtolower(trim($search)) . '%');
+
+        return $qb->getQuery();
     }
 }

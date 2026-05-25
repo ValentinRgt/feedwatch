@@ -133,14 +133,14 @@ class MonitoringControllerCest
     }
 
     /**
-     * With twelve seeded errors and the default page size of 10, the first page
-     * must show exactly ten rows and render the pagination block.
+     * With 24 seeded errors and the default page size of 20, the first page must
+     * show exactly 20 rows and render the pagination block.
      * @param FunctionalTester $I
      * @return void
      */
-    public function listingShowsTenItemsAndRendersPaginationByDefault(FunctionalTester $I): void
+    public function listingShowsTwentyItemsAndRendersPaginationByDefault(FunctionalTester $I): void
     {
-        $this->seedSourceErrors($I, 12);
+        $this->seedSourceErrors($I, 24);
 
         $I->loginAsAUser(UserFixture::ADMIN_EMAIL);
 
@@ -148,7 +148,7 @@ class MonitoringControllerCest
 
         $I->seeResponseCodeIsSuccessful();
         $rows = $I->grabMultiple('//tbody/tr');
-        $I->assertCount(10, $rows);
+        $I->assertCount(20, $rows);
         $I->seeElement('#pagination');
         $I->seeElement('//a[@rel="next"]');
     }
@@ -160,7 +160,7 @@ class MonitoringControllerCest
      */
     public function secondPageShowsTheRemainingItems(FunctionalTester $I): void
     {
-        $this->seedSourceErrors($I, 12);
+        $this->seedSourceErrors($I, 24);
 
         $I->loginAsAUser(UserFixture::ADMIN_EMAIL);
 
@@ -168,7 +168,7 @@ class MonitoringControllerCest
 
         $I->seeResponseCodeIsSuccessful();
         $rows = $I->grabMultiple('//tbody/tr');
-        $I->assertCount(2, $rows);
+        $I->assertCount(4, $rows);
         $I->seeElement('//a[@rel="prev"]');
         $I->dontSeeElement('//a[@rel="next"]');
     }
@@ -180,26 +180,28 @@ class MonitoringControllerCest
      */
     public function pageSizeQueryParameterControlsTheNumberOfRows(FunctionalTester $I): void
     {
-        $this->seedSourceErrors($I, 20);
+        // The MonitoringControllerCest _before() does not load SourceErrorFixture,
+        // so the database has 0 errors before seeding — 50 errors fit exactly in one pageSize=50 page.
+        $this->seedSourceErrors($I, 50);
 
         $I->loginAsAUser(UserFixture::ADMIN_EMAIL);
 
-        $I->amOnPage('/admin/monitoring?pageSize=20');
+        $I->amOnPage('/admin/monitoring?pageSize=50');
 
         $I->seeResponseCodeIsSuccessful();
         $rows = $I->grabMultiple('//tbody/tr');
-        $I->assertCount(20, $rows);
+        $I->assertCount(50, $rows);
         $I->dontSeeElement('#pagination');
     }
 
     /**
-     * An out-of-whitelist pageSize value falls back to the first option (10 rows).
+     * An out-of-whitelist pageSize value falls back to the first option (20 rows).
      * @param FunctionalTester $I
      * @return void
      */
     public function pageSizeFallsBackToTheDefaultWhenTheValueIsNotAllowed(FunctionalTester $I): void
     {
-        $this->seedSourceErrors($I, 12);
+        $this->seedSourceErrors($I, 24);
 
         $I->loginAsAUser(UserFixture::ADMIN_EMAIL);
 
@@ -207,7 +209,7 @@ class MonitoringControllerCest
 
         $I->seeResponseCodeIsSuccessful();
         $rows = $I->grabMultiple('//tbody/tr');
-        $I->assertCount(10, $rows);
+        $I->assertCount(20, $rows);
     }
 
     /**
@@ -224,8 +226,8 @@ class MonitoringControllerCest
 
         $I->seeResponseCodeIsSuccessful();
         $values = $I->grabMultiple('//select[@id="page-size-select"]/option', 'value');
-        $I->assertSame(['10', '20', '50', '100'], $values);
-        $I->seeElement('//select[@id="page-size-select"]/option[@value="10"][@selected]');
+        $I->assertSame(['20', '50', '100'], $values);
+        $I->seeElement('//select[@id="page-size-select"]/option[@value="20"][@selected]');
     }
 
     /**
@@ -241,7 +243,7 @@ class MonitoringControllerCest
 
         $I->seeResponseCodeIsSuccessful();
         $I->seeElement('//select[@id="page-size-select"]/option[@value="50"][@selected]');
-        $I->dontSeeElement('//select[@id="page-size-select"]/option[@value="10"][@selected]');
+        $I->dontSeeElement('//select[@id="page-size-select"]/option[@value="20"][@selected]');
     }
 
     private function seedSourceErrors(FunctionalTester $I, int $count): void

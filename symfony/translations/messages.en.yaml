@@ -7,6 +7,7 @@ navigation:
         dashboard: "Dashboard"
         categories: "Category Management"
         sources: "Source Management"
+        articles: "Article Management"
         monitoring: "Monitoring"
 
 command:
@@ -66,6 +67,9 @@ pages:
         title: "FeedWatch :: Home"
         all_feeds: "All feeds"
         no_feeds: "No feeds added yet."
+        search:
+            label: "Search feeds"
+            placeholder: "Search by title, source or category"
     login:
         title: "FeedWatch :: Login"
         email: "Email address"
@@ -141,6 +145,9 @@ pages:
                 no_categories: "No categories created yet."
                 not_updated: "No updates yet."
                 add_category: "Add category"
+                search:
+                    label: "Search categories"
+                    placeholder: "Search by name"
                 table:
                     title: "Category Management"
                     name: "Name"
@@ -172,6 +179,9 @@ pages:
                 not_updated: "No updates yet."
                 no_category: "No category assigned"
                 add_source: "Add source"
+                search:
+                    label: "Search sources"
+                    placeholder: "Search by name"
                 table:
                     title: "Source Management"
                     name: "Name"
@@ -190,3 +200,28 @@ pages:
                 title: "FeedWatch :: Edit source %name%"
                 success: "Source updated successfully!"
                 submit: "Update"
+
+        articles:
+            index:
+                title: "FeedWatch :: Article Management"
+                empty: "No articles have been fetched yet."
+                no_category: "No category assigned"
+                not_published: "Unknown"
+                search:
+                    label: "Search articles"
+                    placeholder: "Search by title, source or category"
+                table:
+                    title: "Article Management"
+                    title_column: "Title"
+                    source: "Source"
+                    category: "Category"
+                    published_at: "Published At"
+                    created_at: "Created At"
+                    actions: "Actions"
+                delete:
+                    confirm:
+                        title: "Delete this article?"
+                        text: 'The article "%title%" will be permanently deleted. This action cannot be undone.'
+                        confirm: "Yes, delete it"
+                        cancel: "Cancel"
+                    success: "Article deleted successfully."

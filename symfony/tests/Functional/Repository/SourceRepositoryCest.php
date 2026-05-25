@@ -95,4 +95,49 @@ class SourceRepositoryCest
         $I->assertNotContains($notDue, $ids);
         $I->assertNotContains($inactive, $ids);
     }
+
+    public function findByQueryMatchesSourceNameCaseInsensitively(FunctionalTester $I): void
+    {
+        $this->createSource($I, 'TechCrunch');
+        $this->createSource($I, 'Eurosport');
+        $this->createSource($I, 'Le Monde');
+
+        /** @var SourceRepository $repository */
+        $repository = $I->grabService(SourceRepository::class);
+
+        /** @var Source[] $lower */
+        $lower = $repository->findByQuery('techcrunch')->getResult();
+        $I->assertSame(['TechCrunch'], array_map(static fn (Source $s): string => $s->getName(), $lower));
+
+        /** @var Source[] $padded */
+        $padded = $repository->findByQuery('  LE MONDE  ')->getResult();
+        $I->assertSame(['Le Monde'], array_map(static fn (Source $s): string => $s->getName(), $padded));
+    }
+
+    public function findByQueryReturnsEverySourceWhoseNameMatches(FunctionalTester $I): void
+    {
+        $this->createSource($I, 'Daily News');
+        $this->createSource($I, 'News at Ten');
+        $this->createSource($I, 'Weather Watch');
+
+        /** @var SourceRepository $repository */
+        $repository = $I->grabService(SourceRepository::class);
+
+        /** @var Source[] $matches */
+        $matches = $repository->findByQuery('news')->getResult();
+        $names = array_map(static fn (Source $s): string => $s->getName(), $matches);
+        sort($names);
+
+        $I->assertSame(['Daily News', 'News at Ten'], $names);
+    }
+
+    public function findByQueryReturnsAnEmptyResultWhenNothingMatches(FunctionalTester $I): void
+    {
+        $this->createSource($I, 'TechCrunch');
+
+        /** @var SourceRepository $repository */
+        $repository = $I->grabService(SourceRepository::class);
+
+        $I->assertSame([], $repository->findByQuery('does-not-exist')->getResult());
+    }
 }

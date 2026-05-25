@@ -83,9 +83,13 @@ new XMLService(new MockHttpClient(new MockResponse($xmlFixture)));
 ```
 
 ### Targeted value resolvers (controllers)
-`PageSizeResolver` is a `ValueResolverInterface` exposed under the `pageSize` target, fed by the `%items_per_page%` parameter (`[10, 20, 50, 100]`). Controllers receive it via `#[ValueResolver('pageSize')] int $pageSize`.
-- Test it in **Unit**: instantiate `new PageSizeResolver([10, 20, …])`, drive `resolve(Request, ArgumentMetadata)` and collect the generator with `iterator_to_array()`. Cover: value missing, value in the whitelist, value outside the whitelist (must fall back to `options[0]`).
-- For controllers, a Functional test that hits a route with `?pageSize=` is enough to prove the wiring; do not double the resolver.
+The app uses two `ValueResolverInterface` resolvers, exposed via `#[AsTargetedValueResolver]` and consumed in controllers with `#[ValueResolver('…')]`:
+- **`PageSizeResolver`** (target `pageSize`, fed by the `%items_per_page%` parameter — `[10, 20, 50, 100]`). Controllers receive it via `#[ValueResolver('pageSize')] int $pageSize`.
+- **`QueryResolver`** (target `query`, yields `$request->query->getString('q')`). Controllers receive it via `#[ValueResolver('query')] string $query`.
+
+How to test them:
+- **Unit**: instantiate the resolver directly (e.g. `new PageSizeResolver([10, 20, …])` or `new QueryResolver()`), drive `resolve(Request, ArgumentMetadata)`, and collect the generator with `iterator_to_array()`. Cover every branch: for `PageSizeResolver` — missing param, value in whitelist, value outside whitelist (must fall back to `options[0]`); for `QueryResolver` — missing param (→ `''`), present param, non-string param (coerced by `getString`).
+- **Functional** (controllers): hit the route with `?pageSize=` and `?q=` to prove the wiring; **do not double the resolver** — it is already covered in Unit.
 
 ### Database (Functional)
 - Create precise data: `$id = $I->haveInRepository(Source::class, [...]);` (typed setters accept enums).
@@ -128,25 +132,26 @@ Any new file under `src/` (e.g. a test fixture) **must** pass phpcs + phpstan.
 
 ## 7. What is already covered (reference)
 
-- **Unit**: `UserService`, `SourceService` (`getReader`, `updateSource`), `ArticleService`, `AbstractFeedReader`, `XMLService`, `HTMLService`, `SourceMessageHandler` (happy path + reader-returns-null), enums (`Periodicity`/`Format`/`Status`), `CategoryListener`, `DateTimeImmutableListener`, `DateTimeImmutableTrait`, `ComposerVersion`.
-- **Functional**: `SourceRepository::findDueSources`, `ArticleRepository`, controllers `Home`/`Security`/`Admin\Category`/`Admin\Source`, commands `User create`/`update`/`delete`.
-- **Acceptance**: `Home`, `Security`, `Admin\Category`, `Admin\Source`.
+- **Unit**: `UserService`, `SourceService` (`getReader`, `updateSource`, `recordFailure`), `ArticleService`, `AbstractFeedReader`, `XMLService`, `HTMLService`, `SourceMessageHandler` (happy path + reader-returns-null + failure branch via `recordFailure`), `PageSizeResolver`, enums (`Periodicity`/`Format`/`Status`), `CategoryListener`, `DateTimeImmutableListener`, `DateTimeImmutableTrait`, `ComposerVersion`.
+- **Functional**: `SourceRepository::findDueSources`, `ArticleRepository` (incl. `findByCategoryQuery` without `$search`), controllers `Home`/`Security`/`Admin\Index`/`Admin\Category`/`Admin\Source`/`Admin\Monitoring`, commands `User create`/`update`/`delete`.
+- **Acceptance**: `Home`, `Security`, `Admin\Index`, `Admin\Category`, `Admin\Source`, `Admin\Monitoring`.
 
 ### Known open points
 
-#### Tests currently failing — must be fixed
-- **`SourceServiceCest` — 5 errors**: `SourceService::__construct` now requires a third argument `SourceErrorRepository` (see [Service/SourceService.php](src/Service/SourceService.php)). Every `new SourceService([...], $this->repository())` in [tests/Unit/Service/SourceServiceCest.php](symfony/tests/Unit/Service/SourceServiceCest.php) must pass an `SourceErrorRepository` double (`Stub::makeEmpty(SourceErrorRepository::class)`).
-- **`SourceMessageHandlerCest::skipsSourcesWhoseChecksumHasNotChanged` — 1 failure**: `SourceMessageHandler::__invoke` no longer pre-checks `Source::getChecksum()` against the reader's payload; checksum gating lives entirely in the feed reader (`read()` returns `null` when unchanged). The two valid branches are now (a) reader returns `null` → skip, (b) reader returns content → update + create articles. Drop or rewrite this "same-checksum" scenario — it duplicates `skipsSourcesWhenTheReaderReturnsNull` once the unchanged-checksum logic is read from the reader double directly.
-- **`Acceptance\CategoryControllerCest::adminCanCreateAndRemoveACategory` — 1 failure**: the new category appears in `<th>` cells in the listing table, and `$I->see('Acceptance E2E Category')` after submit is checking for the text *anywhere*, but the listing now renders the create button label `Add category` and a `<select>` with the page-size options before showing the new row. Likely a real bug in either the redirect target or a missing assertion — investigate before changing the test.
-
 #### Missing coverage (to add)
-- **`PageSizeResolver`** ([src/Resolver/PageSizeResolver.php](src/Resolver/PageSizeResolver.php)) — no unit test yet. Cover the three branches: missing param → default (first option), allowed value → echoed, not-in-whitelist → fallback to default. Use the **Unit** suite.
-- **`SourceService::recordFailure()`** — new method that persists a `SourceError` and flips the `Source` to `StatusEnum::IN_ERROR`. Unit-test it with in-memory subclasses of `SourceRepository` / `SourceErrorRepository` (capture saved entities in public arrays), then assert exception class/message/file/line are copied and the source status is updated.
-- **`SourceMessageHandler` failure branch** — when the reader (or any collaborator) throws, the handler logs the error and calls `sourceService->recordFailure($source, $throwable)`. Add a test that drives the reader stub to throw, doubles `SourceService::recordFailure` to capture calls (`use (&$failures)`), and asserts the throwable + source are forwarded.
-- **`SourceErrorRepository::findRecent($limit)`** ([src/Repository/SourceErrorRepository.php](src/Repository/SourceErrorRepository.php)) — Functional test in `tests/Functional/Repository/`: insert several `SourceError` rows with controlled `createdAt`, assert ordering (DESC) and `$limit`.
-- **`SourceRepository::findMostActive($days, $limit)`** and **`CategoryRepository::findMostActive($days, $limit)`** — Functional repository tests: seed sources/categories with articles whose `createdAt` straddles the `$days` window, assert ordering by `articleCount DESC` and the cutoff.
-- **`Admin\IndexController`** ([src/Http/AdminController/IndexController.php](src/Http/AdminController/IndexController.php)) — dashboard rendering counts and the four "most active" arrays. Functional test: seed minimal data, log in as admin, assert the response is 200 and the counts appear; access control mirrors the other admin controllers (anonymous → login, regular user → 403).
-- **`Admin\MonitoringController`** ([src/Http/AdminController/MonitoringController.php](src/Http/AdminController/MonitoringController.php)) — `index` (paginated list of `SourceError` rows, joined with `Source`) and `delete` (CSRF-protected POST). Functional + Acceptance tests symmetric to `Admin\Source`. Will need a `Test` `SourceErrorFixture` (or inline `haveInRepository`) to seed errors.
+
+Driven by the recent search/listing additions (see [src/Resolver/QueryResolver.php](src/Resolver/QueryResolver.php), [src/Http/AdminController/ArticleController.php](src/Http/AdminController/ArticleController.php), and the new `findByQuery` methods on `Article`/`Category`/`Source` repositories):
+
+- **`QueryResolver`** ([src/Resolver/QueryResolver.php](src/Resolver/QueryResolver.php)) — targeted value resolver (`query` target) that yields `$request->query->getString('q')`. Unit test in `tests/Unit/Resolver/` covering: `?q=foo` → `'foo'`, missing param → `''`, non-scalar/array param → coerced to `''` (the resolver always yields a `string`). Same pattern as `PageSizeResolverCest`: instantiate directly, drive `resolve(Request, ArgumentMetadata)`, collect with `iterator_to_array()`.
+- **Repository search methods** — three new methods, one functional Cest each (or extra tests in the existing `ArticleRepositoryCest` / a new `CategoryRepositoryCest`/`SourceRepositoryCest`):
+  - **`ArticleRepository::findByQuery(string $search)`** ([src/Repository/ArticleRepository.php](src/Repository/ArticleRepository.php)) — searches `LOWER(a.title) / LOWER(s.name) / LOWER(c.name)` with a `LIKE` and orders by `publishedAt DESC, createdAt DESC`. Seed three articles (match by title, match by source name, match by category name) plus one non-matching, assert exactly the three matchers are returned in the right order. Also cover case-insensitivity and the leading/trailing whitespace trim.
+  - **`ArticleRepository::findByCategoryQuery(?Category $category, ?string $search)`** — the `$search` branch is new. Add a test covering category + search combined (intersection), and `null` category + search (matches across all categories).
+  - **`CategoryRepository::findByQuery(string $search)`** and **`SourceRepository::findByQuery(string $search)`** — simpler `LIKE` on the `name` column. Seed three rows, assert only the matching ones are returned and that the search is case-insensitive.
+- **Search wiring on existing controllers** — `HomeController`, `Admin\CategoryController`, `Admin\SourceController` now inject `#[ValueResolver('query')] string $query` and switch the paginated query when `$query` is non-empty. One functional test per controller hitting `?q=…` is enough to prove the wiring; do not double `QueryResolver` (it is exercised in Unit). Reuse the seeded fixtures and assert the response shows the matching row and hides the others.
+- **`Admin\ArticleController`** ([src/Http/AdminController/ArticleController.php](src/Http/AdminController/ArticleController.php)) — entirely new controller. Symmetric to `Admin\Source`:
+  - Functional: access control (anonymous → login, regular user → 403, admin → 200), default listing ordered by `publishedAt DESC, createdAt DESC`, `?q=` filtering, `?pageSize=` wiring, `POST /article/{id}/delete` with valid/invalid CSRF token.
+  - Acceptance: admin-driven create-via-feed scenario is not in scope (articles are produced by the feed pipeline), so cover at minimum: listing renders, search filters the table, delete removes a seeded article. Seed via `haveInRepository` since there is no `ArticleFixture` yet.
+- **`SourceRepository::findMostActive($days, $limit)`** and **`CategoryRepository::findMostActive($days, $limit)`** ([src/Repository/SourceRepository.php](src/Repository/SourceRepository.php), [src/Repository/CategoryRepository.php](src/Repository/CategoryRepository.php)) — exercised end-to-end through `IndexControllerCest`, but no direct repository test. Add functional Cests that seed sources/categories with articles whose `createdAt` straddles the `$days` window, then assert ordering by `articleCount DESC` and the `$limit` cutoff. Lowest-layer coverage per §2.
 
 #### Documented current behaviour (not a bug)
 - `HTMLService::read()` is a **stub**: it always returns `null` (HTML parsing not implemented). The tests document this current behaviour; complete them once parsing exists.

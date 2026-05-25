@@ -165,40 +165,43 @@ class CategoryControllerCest
     }
 
     /**
-     * The fixture seeds 20 categories — with the default page size (10),
-     * the listing must show exactly 10 rows and render the pagination block.
+     * The fixture seeds 20 categories; adding 5 more brings the total to 25 — with
+     * the default page size (20), the listing must show 20 rows and a pagination block.
      * @param FunctionalTester $I
      * @return void
      */
-    public function listingShowsTenItemsAndRendersPaginationByDefault(FunctionalTester $I): void
+    public function listingShowsTwentyItemsAndRendersPaginationByDefault(FunctionalTester $I): void
     {
+        $this->seedExtraCategories($I, 5);
+
         $I->loginAsAUser(UserFixture::ADMIN_EMAIL);
 
         $I->amOnPage('/admin/category');
 
         $I->seeResponseCodeIsSuccessful();
         $rows = $I->grabMultiple('//tbody/tr');
-        $I->assertCount(10, $rows, 'The default page must contain exactly the first ten categories.');
+        $I->assertCount(20, $rows, 'The default page must contain exactly the first twenty categories.');
         $I->seeElement('#pagination');
-        // A second-page link must exist when there are 20 items split in pages of 10.
         $I->seeElement('//a[@rel="next"]');
     }
 
     /**
-     * Navigating to ?page=2 shows the remaining categories of the fixture.
+     * Navigating to ?page=2 shows the remaining categories beyond the first 20.
      * @param FunctionalTester $I
      * @return void
      */
     public function secondPageShowsTheRemainingItems(FunctionalTester $I): void
     {
+        // Fixture's 20 categories + 5 extras = 25 total → page 2 holds 5 rows.
+        $this->seedExtraCategories($I, 5);
+
         $I->loginAsAUser(UserFixture::ADMIN_EMAIL);
 
         $I->amOnPage('/admin/category?page=2');
 
         $I->seeResponseCodeIsSuccessful();
         $rows = $I->grabMultiple('//tbody/tr');
-        $I->assertCount(10, $rows, 'The second page must contain the remaining ten categories.');
-        // A "previous" link is rendered on page 2 but no "next" since there is no page 3.
+        $I->assertCount(5, $rows, 'The second page must contain the remaining five categories.');
         $I->seeElement('//a[@rel="prev"]');
         $I->dontSeeElement('//a[@rel="next"]');
     }
@@ -210,31 +213,35 @@ class CategoryControllerCest
      */
     public function pageSizeQueryParameterControlsTheNumberOfRows(FunctionalTester $I): void
     {
+        // 20 fixture categories + 30 extras = 50 — perfectly fills a pageSize=50 page.
+        $this->seedExtraCategories($I, 30);
+
         $I->loginAsAUser(UserFixture::ADMIN_EMAIL);
 
-        $I->amOnPage('/admin/category?pageSize=20');
+        $I->amOnPage('/admin/category?pageSize=50');
 
         $I->seeResponseCodeIsSuccessful();
         $rows = $I->grabMultiple('//tbody/tr');
-        $I->assertCount(20, $rows, 'A pageSize of 20 must fit every seeded category on the first page.');
-        // With 20 items fitting in a single page, no pagination block should be rendered.
+        $I->assertCount(50, $rows, 'A pageSize of 50 must fit every seeded category on the first page.');
         $I->dontSeeElement('#pagination');
     }
 
     /**
-     * An out-of-whitelist pageSize value falls back to the first option (10 rows).
+     * An out-of-whitelist pageSize value falls back to the first option (20 rows).
      * @param FunctionalTester $I
      * @return void
      */
     public function pageSizeFallsBackToTheDefaultWhenTheValueIsNotAllowed(FunctionalTester $I): void
     {
+        $this->seedExtraCategories($I, 5);
+
         $I->loginAsAUser(UserFixture::ADMIN_EMAIL);
 
         $I->amOnPage('/admin/category?pageSize=25');
 
         $I->seeResponseCodeIsSuccessful();
         $rows = $I->grabMultiple('//tbody/tr');
-        $I->assertCount(10, $rows, 'A pageSize outside the whitelist must fall back to the default.');
+        $I->assertCount(20, $rows, 'A pageSize outside the whitelist must fall back to the default (20).');
     }
 
     /**
@@ -251,8 +258,8 @@ class CategoryControllerCest
 
         $I->seeResponseCodeIsSuccessful();
         $values = $I->grabMultiple('//select[@id="page-size-select"]/option', 'value');
-        $I->assertSame(['10', '20', '50', '100'], $values);
-        $I->seeElement('//select[@id="page-size-select"]/option[@value="10"][@selected]');
+        $I->assertSame(['20', '50', '100'], $values);
+        $I->seeElement('//select[@id="page-size-select"]/option[@value="20"][@selected]');
     }
 
     /**
@@ -268,6 +275,42 @@ class CategoryControllerCest
 
         $I->seeResponseCodeIsSuccessful();
         $I->seeElement('//select[@id="page-size-select"]/option[@value="50"][@selected]');
-        $I->dontSeeElement('//select[@id="page-size-select"]/option[@value="10"][@selected]');
+        $I->dontSeeElement('//select[@id="page-size-select"]/option[@value="20"][@selected]');
+    }
+
+    public function searchQueryFiltersCategoriesByName(FunctionalTester $I): void
+    {
+        $I->haveInRepository(Category::class, ['name' => 'Technology']);
+        $I->haveInRepository(Category::class, ['name' => 'Sport']);
+
+        $I->loginAsAUser(UserFixture::ADMIN_EMAIL);
+
+        $I->amOnPage('/admin/category?q=technology');
+
+        $I->seeResponseCodeIsSuccessful();
+        $rows = $I->grabMultiple('//tbody/tr');
+        $I->assertCount(1, $rows);
+        $I->see('Technology');
+        $I->dontSee('Sport');
+        $I->dontSee('TEST Category 0');
+    }
+
+    public function searchQueryEchoesIntoTheSearchInput(FunctionalTester $I): void
+    {
+        $I->loginAsAUser(UserFixture::ADMIN_EMAIL);
+
+        $I->amOnPage('/admin/category?q=technology');
+
+        $I->seeResponseCodeIsSuccessful();
+        $I->seeElement('//input[@id="search-query"][@name="q"][@value="technology"]');
+    }
+
+    private function seedExtraCategories(FunctionalTester $I, int $count): void
+    {
+        for ($i = 0; $i < $count; $i++) {
+            $I->haveInRepository(Category::class, [
+                'name' => 'Pagination Category ' . $i,
+            ]);
+        }
     }
 }

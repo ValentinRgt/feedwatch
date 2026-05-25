@@ -11,6 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
+use Symfony\Component\HttpKernel\Attribute\ValueResolver;
 use Symfony\Component\Routing\Attribute\Route;
 
 final class HomeController extends AbstractController
@@ -21,7 +22,9 @@ final class HomeController extends AbstractController
         ArticleRepository $articleRepository,
         PaginatorInterface $paginator,
         Request $request,
-        #[MapQueryParameter] ?int $category = null
+        #[ValueResolver('query')] string $query,
+        #[ValueResolver('pageSize')] int $pageSize,
+        #[MapQueryParameter] ?int $category = null,
     ): Response {
         $selectedCategory = null;
         if (null !== $category) {
@@ -29,9 +32,9 @@ final class HomeController extends AbstractController
         }
 
         $feeds = $paginator->paginate(
-            $articleRepository->findByCategoryQuery($selectedCategory),
+            $articleRepository->findByCategoryQuery($selectedCategory, $query),
             $request->query->getInt('page', 1),
-            12
+            $pageSize
         );
 
         return $this->render('index.html.twig', [

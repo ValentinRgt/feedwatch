@@ -9,6 +9,7 @@ use App\Enum\PeriodicityEnum;
 use App\Enum\StatusEnum;
 use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Query;
 use Doctrine\Persistence\ManagerRegistry;
 use Throwable;
 
@@ -102,5 +103,19 @@ class SourceRepository extends ServiceEntityRepository
             ->setMaxResults($limit)
             ->getQuery()
             ->getArrayResult();
+    }
+
+    /**
+     * @param string $search
+     * @return Query
+     */
+    public function findByQuery(string $search): Query
+    {
+        $qb = $this->createQueryBuilder('s');
+
+        $qb->where('LOWER(s.name) LIKE :search')
+            ->setParameter('search', '%' . strtolower(trim($search)) . '%');
+
+        return $qb->getQuery();
     }
 }

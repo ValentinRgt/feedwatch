@@ -23,10 +23,19 @@ final class SourceController extends AbstractController
         SourceRepository $sourceRepository,
         PaginatorInterface $paginator,
         Request $request,
+        #[ValueResolver('query')] string $query,
         #[ValueResolver('pageSize')] int $pageSize,
     ): Response {
+        $reportory = $sourceRepository->createQueryBuilder('s')
+            ->orderBy('s.id')
+            ->getQuery();
+
+        if (!empty($query)) {
+            $reportory = $sourceRepository->findByQuery($query);
+        }
+
         $sources = $paginator->paginate(
-            $sourceRepository->createQueryBuilder('s')->orderBy('s.id')->getQuery(),
+            $reportory,
             $request->query->getInt('page', 1),
             $pageSize
         );
