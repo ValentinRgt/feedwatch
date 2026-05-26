@@ -36,6 +36,18 @@ class Source
     private ?FormatEnum $format = null;
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    private ?string $itemContainer = null;
+
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    private ?string $itemTitle = null;
+
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    private ?string $itemLink = null;
+
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    private ?string $itemPublishedAt = null;
+
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $checksum = null;
 
     #[ORM\ManyToOne(inversedBy: 'sources')]
@@ -104,6 +116,54 @@ class Source
     public function setUrl(string $url): static
     {
         $this->url = $url;
+
+        return $this;
+    }
+
+    public function getItemContainer(): ?string
+    {
+        return $this->itemContainer;
+    }
+
+    public function setItemContainer(?string $itemContainer): static
+    {
+        $this->itemContainer = $itemContainer;
+
+        return $this;
+    }
+
+    public function getItemTitle(): ?string
+    {
+        return $this->itemTitle;
+    }
+
+    public function setItemTitle(?string $itemTitle): static
+    {
+        $this->itemTitle = $itemTitle;
+
+        return $this;
+    }
+
+    public function getItemLink(): ?string
+    {
+        return $this->itemLink;
+    }
+
+    public function setItemLink(?string $itemLink): static
+    {
+        $this->itemLink = $itemLink;
+
+        return $this;
+    }
+
+    public function getItemPublishedAt(): ?string
+    {
+        return $this->itemPublishedAt;
+    }
+
+    public function setItemPublishedAt(?string $itemPublishedAt): static
+    {
+        $this->itemPublishedAt = $itemPublishedAt;
 
         return $this;
     }
