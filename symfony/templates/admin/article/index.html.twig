@@ -51,13 +51,13 @@
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         {{ article.source and article.source.category
-                            ? article.source.category.name
-                            : 'pages.admin.articles.index.no_category'|trans }}
+                        ? article.source.category.name
+                        : 'pages.admin.articles.index.no_category'|trans }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         {{ article.publishedAt
-                            ? article.publishedAt|date
-                            : 'pages.admin.articles.index.not_published'|trans }}
+                        ? article.publishedAt|date
+                        : 'pages.admin.articles.index.not_published'|trans }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         {{ article.createdAt|date }}
