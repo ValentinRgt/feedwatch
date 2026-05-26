@@ -162,8 +162,9 @@ class SourceType extends AbstractType
 
         $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event): void {
             $form = $event->getForm();
+            $data = $event->getData();
 
-            if ($form->get('format')->getData() !== FormatEnum::HTML->value) {
+            if (!is_array($data) || ($data['format'] ?? null) !== FormatEnum::HTML->value) {
                 return;
             }
 

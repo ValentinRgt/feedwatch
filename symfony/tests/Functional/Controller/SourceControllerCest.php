@@ -70,6 +70,145 @@ class SourceControllerCest
         $I->seeInRepository(Source::class, ['name' => 'Brand New Source']);
     }
 
+    public function creatingAnXmlSourceLeavesItemSelectorsBlankWithoutTriggeringValidation(
+        FunctionalTester $I
+    ): void {
+        $I->loginAsAUser(UserFixture::ADMIN_EMAIL);
+
+        $I->amOnPage('/admin/source');
+        $I->submitForm('form.grid', [
+            'source[name]' => 'XML Source Without Selectors',
+            'source[url]' => 'https://feedwatch.local/xml-no-selectors',
+            'source[format]' => 'xml',
+            'source[status]' => 'active',
+            'source[periodicity]' => 'hourly',
+            // Item selectors left blank on purpose — only required when format=html.
+            'source[itemContainer]' => '',
+            'source[itemTitle]' => '',
+            'source[itemLink]' => '',
+            'source[itemPublishedAt]' => '',
+        ]);
+
+        $I->seeCurrentRouteIs('app.admin.source.index');
+        $source = $I->grabEntityFromRepository(Source::class, ['name' => 'XML Source Without Selectors']);
+        $I->assertNull($source->getItemContainer());
+        $I->assertNull($source->getItemTitle());
+        $I->assertNull($source->getItemLink());
+        $I->assertNull($source->getItemPublishedAt());
+    }
+
+    public function adminCanCreateAnHtmlSourceWithItemSelectors(FunctionalTester $I): void
+    {
+        $I->loginAsAUser(UserFixture::ADMIN_EMAIL);
+
+        $I->amOnPage('/admin/source');
+        $I->submitForm('form.grid', [
+            'source[name]' => 'HTML Source With Selectors',
+            'source[url]' => 'https://feedwatch.local/html-with-selectors',
+            'source[format]' => 'html',
+            'source[status]' => 'active',
+            'source[periodicity]' => 'hourly',
+            'source[itemContainer]' => '//article[@class="card"]',
+            'source[itemTitle]' => './/h2',
+            'source[itemLink]' => './/a/@href',
+            'source[itemPublishedAt]' => './/time/@datetime',
+        ]);
+
+        $I->seeCurrentRouteIs('app.admin.source.index');
+        $created = $I->grabEntityFromRepository(Source::class, ['name' => 'HTML Source With Selectors']);
+        $I->assertSame('//article[@class="card"]', $created->getItemContainer());
+        $I->assertSame('.//h2', $created->getItemTitle());
+        $I->assertSame('.//a/@href', $created->getItemLink());
+        $I->assertSame('.//time/@datetime', $created->getItemPublishedAt());
+        $I->assertTrue($created->hasRequiredItemSelectors());
+    }
+
+    public function creatingAnHtmlSourceSucceedsWithoutItemPublishedAt(FunctionalTester $I): void
+    {
+        $I->loginAsAUser(UserFixture::ADMIN_EMAIL);
+
+        $I->amOnPage('/admin/source');
+        $I->submitForm('form.grid', [
+            'source[name]' => 'HTML Source Without PublishedAt',
+            'source[url]' => 'https://feedwatch.local/html-without-publishedat',
+            'source[format]' => 'html',
+            'source[status]' => 'active',
+            'source[periodicity]' => 'hourly',
+            'source[itemContainer]' => '//article',
+            'source[itemTitle]' => './/h2',
+            'source[itemLink]' => './/a/@href',
+            'source[itemPublishedAt]' => '',
+        ]);
+
+        $I->seeCurrentRouteIs('app.admin.source.index');
+        $created = $I->grabEntityFromRepository(Source::class, ['name' => 'HTML Source Without PublishedAt']);
+        $I->assertNull($created->getItemPublishedAt());
+        $I->assertTrue($created->hasRequiredItemSelectors());
+    }
+
+    public function creatingAnHtmlSourceFailsWhenItemContainerIsBlank(FunctionalTester $I): void
+    {
+        $I->loginAsAUser(UserFixture::ADMIN_EMAIL);
+
+        $I->amOnPage('/admin/source');
+        $I->submitForm('form.grid', [
+            'source[name]' => 'HTML Missing Container',
+            'source[url]' => 'https://feedwatch.local/html-missing-container',
+            'source[format]' => 'html',
+            'source[status]' => 'active',
+            'source[periodicity]' => 'hourly',
+            'source[itemContainer]' => '   ',
+            'source[itemTitle]' => './/h2',
+            'source[itemLink]' => './/a/@href',
+        ]);
+
+        $I->seeResponseCodeIsSuccessful();
+        $I->see('This value should not be blank.');
+        $I->dontSeeInRepository(Source::class, ['url' => 'https://feedwatch.local/html-missing-container']);
+    }
+
+    public function creatingAnHtmlSourceFailsWhenItemTitleIsBlank(FunctionalTester $I): void
+    {
+        $I->loginAsAUser(UserFixture::ADMIN_EMAIL);
+
+        $I->amOnPage('/admin/source');
+        $I->submitForm('form.grid', [
+            'source[name]' => 'HTML Missing Title',
+            'source[url]' => 'https://feedwatch.local/html-missing-title',
+            'source[format]' => 'html',
+            'source[status]' => 'active',
+            'source[periodicity]' => 'hourly',
+            'source[itemContainer]' => '//article',
+            'source[itemTitle]' => '   ',
+            'source[itemLink]' => './/a/@href',
+        ]);
+
+        $I->seeResponseCodeIsSuccessful();
+        $I->see('This value should not be blank.');
+        $I->dontSeeInRepository(Source::class, ['url' => 'https://feedwatch.local/html-missing-title']);
+    }
+
+    public function creatingAnHtmlSourceFailsWhenItemLinkIsBlank(FunctionalTester $I): void
+    {
+        $I->loginAsAUser(UserFixture::ADMIN_EMAIL);
+
+        $I->amOnPage('/admin/source');
+        $I->submitForm('form.grid', [
+            'source[name]' => 'HTML Missing Link',
+            'source[url]' => 'https://feedwatch.local/html-missing-link',
+            'source[format]' => 'html',
+            'source[status]' => 'active',
+            'source[periodicity]' => 'hourly',
+            'source[itemContainer]' => '//article',
+            'source[itemTitle]' => './/h2',
+            'source[itemLink]' => '   ',
+        ]);
+
+        $I->seeResponseCodeIsSuccessful();
+        $I->see('This value should not be blank.');
+        $I->dontSeeInRepository(Source::class, ['url' => 'https://feedwatch.local/html-missing-link']);
+    }
+
     public function creatingASourceFailsWithABlankName(FunctionalTester $I): void
     {
         $I->loginAsAUser(UserFixture::ADMIN_EMAIL);

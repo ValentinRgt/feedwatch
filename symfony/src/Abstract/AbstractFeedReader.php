@@ -30,7 +30,16 @@ abstract class AbstractFeedReader
      */
     protected function fetch(string $url): string
     {
-        $response = $this->httpClient->request('GET', $url);
+        $response = $this->httpClient->request(
+            'GET',
+            $url,
+            [
+                'headers' => [
+                    'User-Agent' => 'Mozilla/5.0 (compatible; FeedWatch/1.0; +https://github.com/ValentinRgt/feedwatch)',
+                ],
+                'timeout' => 10,
+            ]
+        );
 
         return $response->getContent();
     }
