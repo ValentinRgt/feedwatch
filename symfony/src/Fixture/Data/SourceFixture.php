@@ -32,11 +32,17 @@ class SourceFixture extends Fixture implements FixtureGroupInterface, DependentF
 
         $source = new Source();
         $source->setName('Korben Info - Cybersecurity');
-        $source->setUrl('https://korben.info/categories/cybersecurite/');
+        $source->setUrl('https://korben.info/categories/cybersecurite/actualites-securite/');
         $source->setFormat(FormatEnum::HTML);
         $source->setPeriodicity(PeriodicityEnum::EVERY_15_MINUTES);
         $source->setCategory($this->getReference(CategoryFixture::CATEGORY_REFERENCE . '1', Category::class));
         $source->setStatus(StatusEnum::ACTIVE);
+        $source->setItemContainer('.//article[contains(concat(" ", normalize-space(@class), " "), " article-card ")]');
+        $source->setItemTitle('.//h2[contains(concat(" ", normalize-space(@class), " "), " article-card-title ")]');
+        $source->setItemLink(
+            './/h2[contains(concat(" ", normalize-space(@class), " "), " article-card-title ")]//a/@href'
+        );
+        $source->setItemPublishedAt('.//time[@itemprop="datePublished"]/@datetime');
         $this->addReference(self::SOURCE_REFERENCE . 'cybersecurite', $source);
         $manager->persist($source);
 

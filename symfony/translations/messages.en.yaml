@@ -177,10 +177,10 @@ pages:
                 html_scraping:
                     title: "HTML scraping configuration"
                     documentation: "Documentation"
-                    item_container_placeholder: "e.g., article.article-card"
-                    item_title_placeholder: "e.g., .article-card-title"
-                    item_link_placeholder: "e.g., .article-card-title a"
-                    item_published_at_placeholder: 'e.g., time[itemprop="datePublished"]'
+                    item_container_placeholder: 'XPath, e.g. .//article[contains(concat(" ", normalize-space(@class), " "), " article-card ")]'
+                    item_title_placeholder: 'XPath, e.g. .//h2[contains(concat(" ", normalize-space(@class), " "), " article-card-title ")]'
+                    item_link_placeholder: 'XPath, e.g. .//h2[contains(concat(" ", normalize-space(@class), " "), " article-card-title ")]//a/@href'
+                    item_published_at_placeholder: 'XPath, e.g. .//time[@itemprop="datePublished"]/@datetime'
             index:
                 title: "FeedWatch :: Source Management"
                 no_sources: "No sources added yet."
