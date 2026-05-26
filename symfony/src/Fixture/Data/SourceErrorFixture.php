@@ -6,7 +6,6 @@ namespace App\Fixture\Data;
 
 use App\Entity\Source;
 use App\Entity\SourceError;
-use App\Fixture\Data\SourceFixture;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;

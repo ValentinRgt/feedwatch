@@ -36,6 +36,18 @@ class Source
     private ?FormatEnum $format = null;
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    private ?string $itemContainer = null;
+
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    private ?string $itemTitle = null;
+
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    private ?string $itemLink = null;
+
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    private ?string $itemPublishedAt = null;
+
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $checksum = null;
 
     #[ORM\ManyToOne(inversedBy: 'sources')]
@@ -104,6 +116,92 @@ class Source
     public function setUrl(string $url): static
     {
         $this->url = $url;
+
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getItemContainer(): ?string
+    {
+        return $this->itemContainer;
+    }
+
+    /**
+     * @param string|null $itemContainer
+     * @return $this
+     */
+    public function setItemContainer(?string $itemContainer): static
+    {
+        $this->itemContainer = $itemContainer;
+
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getItemTitle(): ?string
+    {
+        return $this->itemTitle;
+    }
+
+    /**
+     * @param string|null $itemTitle
+     * @return $this
+     */
+    public function setItemTitle(?string $itemTitle): static
+    {
+        $this->itemTitle = $itemTitle;
+
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getItemLink(): ?string
+    {
+        return $this->itemLink;
+    }
+
+    /**
+     * @param string|null $itemLink
+     * @return $this
+     */
+    public function setItemLink(?string $itemLink): static
+    {
+        $this->itemLink = $itemLink;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasRequiredItemSelectors(): bool
+    {
+        return $this->itemContainer !== null
+            && $this->itemTitle !== null
+            && $this->itemLink !== null;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getItemPublishedAt(): ?string
+    {
+        return $this->itemPublishedAt;
+    }
+
+    /**
+     * @param string|null $itemPublishedAt
+     * @return $this
+     */
+    public function setItemPublishedAt(?string $itemPublishedAt): static
+    {
+        $this->itemPublishedAt = $itemPublishedAt;
 
         return $this;
     }

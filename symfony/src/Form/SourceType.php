@@ -15,6 +15,8 @@ use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -72,7 +74,51 @@ class SourceType extends AbstractType
                 ],
                 'attr' => [
                     'class' => 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500'
-                    . 'focus:border-blue-500 block w-full p-2.5'
+                    . 'focus:border-blue-500 block w-full p-2.5',
+                    'data-format-toggle-target' => 'select',
+                    'data-action' => 'change->format-toggle#toggle',
+                ]
+            ])
+            ->add('itemContainer', TextType::class, [
+                'label_attr' => [
+                    'class' => 'block mb-2 text-md font-medium text-gray-900'
+                ],
+                'attr' => [
+                    'class' => 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500'
+                    . 'focus:border-blue-500 block w-full p-2.5',
+                    'placeholder' => 'pages.admin.sources.form.html_scraping.item_container_placeholder',
+                ]
+            ])
+            ->add('itemTitle', TextType::class, [
+                'label_attr' => [
+                    'class' => 'block mb-2 text-md font-medium text-gray-900'
+                ],
+                'attr' => [
+                    'class' => 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500'
+                    . 'focus:border-blue-500 block w-full p-2.5',
+                    'placeholder' => 'pages.admin.sources.form.html_scraping.item_title_placeholder',
+                ]
+            ])
+            ->add('itemLink', TextType::class, [
+                'label_attr' => [
+                    'class' => 'block mb-2 text-md font-medium text-gray-900'
+                ],
+                'attr' => [
+                    'class' => 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500'
+                    . 'focus:border-blue-500 block w-full p-2.5',
+                    'placeholder' => 'pages.admin.sources.form.html_scraping.item_link_placeholder',
+                ]
+            ])
+            ->add('itemPublishedAt', TextType::class, [
+                'required' => false,
+                'label_attr' => [
+                    'class' => 'block mb-2 text-md font-medium text-gray-900'
+                ],
+                'attr' => [
+                    'data-required' => 'false',
+                    'class' => 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500'
+                    . 'focus:border-blue-500 block w-full p-2.5',
+                    'placeholder' => 'pages.admin.sources.form.html_scraping.item_published_at_placeholder',
                 ]
             ])
             ->add('status', EnumType::class, [
@@ -113,6 +159,26 @@ class SourceType extends AbstractType
                 ]
             ])
         ;
+
+        $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event): void {
+            $form = $event->getForm();
+            $data = $event->getData();
+
+            if (!is_array($data) || ($data['format'] ?? null) !== FormatEnum::HTML->value) {
+                return;
+            }
+
+            foreach (['itemContainer', 'itemTitle', 'itemLink'] as $field) {
+                $options = $form->get($field)->getConfig()->getOptions();
+                $options['constraints'] = [
+                    new Assert\NotBlank([
+                        'normalizer' => 'trim',
+                    ]),
+                ];
+
+                $form->add($field, TextType::class, $options);
+            }
+        });
     }
 
     public function configureOptions(OptionsResolver $resolver): void
@@ -120,7 +186,9 @@ class SourceType extends AbstractType
         $resolver->setDefaults([
             'data_class' => Source::class,
             'attr' => [
-                'class' => 'grid gap-6 mb-6 md:grid-cols-2'
+                'class' => 'grid gap-6 mb-6 md:grid-cols-2',
+                'data-controller' => 'format-toggle',
+                'data-format-toggle-match-value' => FormatEnum::HTML->value,
             ]
         ]);
     }

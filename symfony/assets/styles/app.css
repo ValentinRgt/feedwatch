@@ -1,1 +1,6 @@
 @import "tailwindcss";
+
+label.required::after {
+    content: ' *';
+    @apply text-red-400;
+}

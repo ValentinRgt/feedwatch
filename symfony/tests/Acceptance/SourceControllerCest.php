@@ -119,4 +119,71 @@ class SourceControllerCest
         $I->seeInCurrentUrl('/admin/source');
         $I->see('This value should not be blank.');
     }
+
+    /**
+     * Round-trip on an HTML source: a fully configured HTML source (with XPath
+     * item selectors) is created, surfaced in the listing, then deleted to keep
+     * the dev DB clean.
+     * @param AcceptanceTester $I
+     * @return void
+     */
+    public function adminCanCreateAndRemoveAnHtmlSourceWithItemSelectors(AcceptanceTester $I): void
+    {
+        $I->loginAsAUser(UserFixture::ADMIN_EMAIL);
+
+        $I->amOnPage('/admin/source');
+        $I->submitForm('form.grid', [
+            'source[name]' => 'Acceptance HTML Source',
+            'source[url]' => 'https://feedwatch.local/acceptance-html',
+            'source[format]' => 'html',
+            'source[status]' => 'active',
+            'source[periodicity]' => 'hourly',
+            'source[itemContainer]' => '//article[@class="card"]',
+            'source[itemTitle]' => './/h2',
+            'source[itemLink]' => './/a/@href',
+            'source[itemPublishedAt]' => './/time/@datetime',
+        ]);
+
+        $I->seeInCurrentUrl('/admin/source');
+        $I->see('Acceptance HTML Source');
+
+        // Clean up so the dev DB stays in its seeded state.
+        $deleteAction = $I->grabAttributeFrom(
+            '//tr[th[normalize-space()="Acceptance HTML Source"]]//form[contains(@action,"/delete")]',
+            'action'
+        );
+        $I->submitForm('form[action="' . $deleteAction . '"]', []);
+
+        $I->seeInCurrentUrl('/admin/source');
+        $I->dontSee('Acceptance HTML Source');
+    }
+
+    /**
+     * Submitting the creation form with format=html but one of the required
+     * XPath selectors left blank surfaces a validation error and persists
+     * nothing.
+     * @param AcceptanceTester $I
+     * @return void
+     */
+    public function submittingTheHtmlCreateFormWithoutRequiredSelectorsShowsAValidationError(
+        AcceptanceTester $I
+    ): void {
+        $I->loginAsAUser(UserFixture::ADMIN_EMAIL);
+
+        $I->amOnPage('/admin/source');
+        $I->submitForm('form.grid', [
+            'source[name]' => 'Acceptance HTML Missing Selectors',
+            'source[url]' => 'https://feedwatch.local/acceptance-html-missing',
+            'source[format]' => 'html',
+            'source[status]' => 'active',
+            'source[periodicity]' => 'hourly',
+            'source[itemContainer]' => '',
+            'source[itemTitle]' => '',
+            'source[itemLink]' => '',
+        ]);
+
+        $I->seeInCurrentUrl('/admin/source');
+        $I->see('This value should not be blank.');
+        $I->dontSee('Acceptance HTML Missing Selectors');
+    }
 }

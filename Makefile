@@ -43,10 +43,6 @@ clean: # Clear cache and remove log files and test results
 	sudo rm -f symfony/var/log/*
 	sudo rm -f symfony/tests/_output/*.html symfony/tests/_output/failed
 
-.PHONY: cache
-cache: # Clear cache
-	docker compose exec web bin/console cache:clear
-
 .PHONY: dbload
 dbload: # Load dev db
 	docker compose exec web php -dxdebug.mode=off bin/console doctrine:schema:drop --force
