@@ -10,6 +10,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 enum FormatEnum: string implements TranslatableInterface
 {
     case XML = 'xml';
+    case ATOM = 'atom';
     case HTML = 'html';
 
     public function trans(TranslatorInterface $translator, ?string $locale = null): string

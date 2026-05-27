@@ -47,6 +47,16 @@ class SourceFixture extends Fixture implements FixtureGroupInterface, DependentF
         $manager->persist($source);
 
         $source = new Source();
+        $source->setName('Grafikart - YouTube');
+        $source->setUrl('https://www.youtube.com/feeds/videos.xml?channel_id=UCj_iGliGCkLcHSZ8eqVNPDQ');
+        $source->setFormat(FormatEnum::ATOM);
+        $source->setCategory($this->getReference(CategoryFixture::CATEGORY_REFERENCE . '0', Category::class));
+        $source->setStatus(StatusEnum::ACTIVE);
+        $source->setPeriodicity(PeriodicityEnum::EVERY_6_HOURS);
+        $this->addReference(self::SOURCE_REFERENCE . 'grafikart', $source);
+        $manager->persist($source);
+
+        $source = new Source();
         $source->setName('Invalid Source');
         $source->setUrl('https://invaliddomain.com/feed');
         $source->setFormat(FormatEnum::HTML);
