@@ -40,8 +40,8 @@ docker exec -it feedwatch php bin/console app:user:create
 Additional user-management commands are available:
 
 ```bash
-docker exec -it feedwatch php bin/console app:user:update
-docker exec -it feedwatch php bin/console app:user:delete
+docker exec -it feedwatch php bin/console app:user:update <email:required>
+docker exec -it feedwatch php bin/console app:user:delete <email:required>
 ```
 
 You can then open the application in your browser and start adding categories and sources.
