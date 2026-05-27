@@ -28,6 +28,30 @@ docker run -d --name feedwatch \
   valentinrgt/feedwatch:latest
 ```
 
+Or with Docker Compose, create a `compose.yaml` file:
+
+```yaml
+services:
+  feedwatch:
+    image: valentinrgt/feedwatch:latest
+    container_name: feedwatch
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - feedwatch_var:/app/var
+    restart: unless-stopped
+
+volumes:
+  feedwatch_var: {}
+```
+
+Then start the application with:
+
+```bash
+docker compose up -d
+```
+
 > [!NOTE]
 > The production image is based on [FrankenPHP](https://frankenphp.dev/), which is configured by default to redirect HTTP to HTTPS without taking custom port mappings into account. It is therefore recommended to access the application directly over HTTPS. If you remap the HTTPS port (e.g. `-p 8443:443`), make sure to use the explicit URL with the new port, such as `https://localhost:8443`. For any environment variable changes or further configuration, refer to the [FrankenPHP documentation](https://frankenphp.dev/docs/).
 
