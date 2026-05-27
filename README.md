@@ -52,6 +52,24 @@ Then start the application with:
 docker compose up -d
 ```
 
+### Customizing PHP configuration (timezone, etc.)
+
+To override PHP settings such as the timezone, create a `php.ini` file next to your `compose.yaml`:
+
+```ini
+date.timezone = Europe/Paris
+```
+
+Then mount it into the container by adding a volume entry under the `feedwatch` service:
+
+```yaml
+    volumes:
+      - feedwatch_var:/app/var
+      - ./php.ini:/usr/local/etc/php/conf.d/zz-feedwatch.ini:ro
+```
+
+Restart the stack with `docker compose up -d` to apply the new configuration.
+
 > [!NOTE]
 > The production image is based on [FrankenPHP](https://frankenphp.dev/), which is configured by default to redirect HTTP to HTTPS without taking custom port mappings into account. It is therefore recommended to access the application directly over HTTPS. If you remap the HTTPS port (e.g. `-p 8443:443`), make sure to use the explicit URL with the new port, such as `https://localhost:8443`. For any environment variable changes or further configuration, refer to the [FrankenPHP documentation](https://frankenphp.dev/docs/).
 

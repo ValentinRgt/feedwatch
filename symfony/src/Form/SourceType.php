@@ -45,12 +45,11 @@ class SourceType extends AbstractType
                     . 'focus:border-blue-500 block w-full p-2.5'
                 ],
                 'constraints' => [
-                    new Assert\NotBlank([
-                        'normalizer' => 'trim',
-                    ]),
+                    new Assert\NotBlank(normalizer: 'trim'),
                 ],
             ])
             ->add('url', UrlType::class, [
+                'default_protocol' => 'https',
                 'row_attr' => [
                     'class' => 'col-span-2'
                 ],
@@ -62,9 +61,7 @@ class SourceType extends AbstractType
                     . 'focus:border-blue-500 block w-full p-2.5'
                 ],
                 'constraints' => [
-                    new Assert\NotBlank([
-                        'normalizer' => 'trim',
-                    ]),
+                    new Assert\NotBlank(normalizer: 'trim'),
                 ],
             ])
             ->add('format', EnumType::class, [
@@ -171,9 +168,7 @@ class SourceType extends AbstractType
             foreach (['itemContainer', 'itemTitle', 'itemLink'] as $field) {
                 $options = $form->get($field)->getConfig()->getOptions();
                 $options['constraints'] = [
-                    new Assert\NotBlank([
-                        'normalizer' => 'trim',
-                    ]),
+                    new Assert\NotBlank(normalizer: 'trim'),
                 ];
 
                 $form->add($field, TextType::class, $options);

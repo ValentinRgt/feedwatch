@@ -31,9 +31,7 @@ class CategoryType extends AbstractType
                     'placeholder' => 'pages.admin.categories.form.name_placeholder'
                 ],
                 'constraints' => [
-                    new Assert\NotBlank([
-                        'normalizer' => 'trim',
-                    ]),
+                    new Assert\NotBlank(normalizer: 'trim'),
                 ],
             ])
         ;
